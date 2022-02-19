@@ -1,12 +1,14 @@
 import { FC, useEffect } from "react";
 import { USER_AUTH_KEY, authorizationUrl } from "../../constants";
 import { authenticated } from "./selectors";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { authenticateUser } from "../../lib/actions";
 
 interface Props {}
 
 const ImageApproval: FC<Props> = ({}) => {
   const isAuthenticated = useSelector(authenticated);
+  const dispatch = useDispatch();
   useEffect(() => {
     const accessToken = localStorage.getItem(USER_AUTH_KEY);
     const searchParams = new URLSearchParams(window.location.search);
@@ -20,7 +22,16 @@ const ImageApproval: FC<Props> = ({}) => {
     // }
   }, []);
   return (
-    <h1>{isAuthenticated ? "YIpeee!!!" : "Please Authenticate the user"}</h1>
+    <>
+      <h1>{isAuthenticated ? "YIpeee!!!" : "Please Authenticate the user"}</h1>
+      <button
+        onClick={(e) =>
+          dispatch(authenticateUser.start({ a: "2", metadata: "3" }))
+        }
+      >
+        Dispatch Action
+      </button>
+    </>
   );
 };
 
