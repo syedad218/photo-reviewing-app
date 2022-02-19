@@ -1,15 +1,25 @@
-import { initialState } from "./store";
+import { AUTHENTICATE_USER } from "./actionTypes";
+import produce from "immer";
 
 interface Action {
   type: string;
   payload: any;
 }
 
+export const initialState = {
+  authenticated: false,
+};
+
 const reducer = (state = initialState, action: Action) => {
-  switch (action.type) {
-    default:
-      return state;
-  }
+  return produce(state, (draft) => {
+    switch (action.type) {
+      case AUTHENTICATE_USER.SUCCESS:
+        draft.authenticated = true;
+        break;
+      default:
+        return state;
+    }
+  });
 };
 
 export default reducer;

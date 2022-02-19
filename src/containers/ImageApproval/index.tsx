@@ -13,24 +13,23 @@ const ImageApproval: FC<Props> = ({}) => {
     const accessToken = localStorage.getItem(USER_AUTH_KEY);
     const searchParams = new URLSearchParams(window.location.search);
     const code = searchParams.get("code");
-    // if (code && accessToken) {
-    //   searchParams.delete("code");
-    // } else if (accessToken) {
-    //   // set authenticated to true
-    // } else {
-    //   window.location.href = authorizationUrl;
-    // }
+    if (code && accessToken) {
+      searchParams.delete("code");
+      window.history.replaceState({}, "", `${window.location.pathname}`);
+      dispatch(authenticateUser.success());
+    } else if (accessToken) {
+      dispatch(authenticateUser.success());
+    } else if (code) {
+      dispatch(authenticateUser.start({ metadata: { code } }));
+    } else {
+      window.location.href = authorizationUrl;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <>
       <h1>{isAuthenticated ? "YIpeee!!!" : "Please Authenticate the user"}</h1>
-      <button
-        onClick={(e) =>
-          dispatch(authenticateUser.start({ a: "2", metadata: "3" }))
-        }
-      >
-        Dispatch Action
-      </button>
     </>
   );
 };

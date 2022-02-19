@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
-export const BASE_URL = "https://unsplash.com";
+export const BASE_URL = "https://unsplash.com/";
 
 interface RequestConfig {
   method: AxiosRequestConfig["method"];
@@ -8,11 +8,11 @@ interface RequestConfig {
   config: AxiosRequestConfig;
 }
 
-export const request = async ({
+export default async function request({
   method,
   endpoint,
   config,
-}: RequestConfig): Promise<AxiosResponse<any, any> | never> => {
+}: RequestConfig): Promise<AxiosResponse<any, any> | never> {
   const url = `${BASE_URL}${endpoint}`;
   try {
     const response: AxiosResponse = await axios({
@@ -25,4 +25,4 @@ export const request = async ({
   } catch (error) {
     throw error;
   }
-};
+}

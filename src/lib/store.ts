@@ -7,10 +7,6 @@ export interface State {
   authenticated: boolean;
 }
 
-export const initialState = {
-  authenticated: false,
-};
-
 const sagaMiddleware = createSagaMiddleware();
 
 export const store = createStore(reducer, applyMiddleware(sagaMiddleware));
