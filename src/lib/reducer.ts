@@ -1,6 +1,7 @@
 import {
   AUTHENTICATE_USER,
   FETCH_RANDOM_IMAGE,
+  FETCH_USER_LIKED_IMAGES,
   FETCH_USER_PROFILE,
   LIKE_IMAGE,
   UNLIKE_IMAGE,
@@ -10,7 +11,7 @@ import { Action } from "./actions";
 
 interface Image {
   id: string;
-  urls: {
+  url: {
     thumb: string;
     regular: string;
   };
@@ -70,14 +71,17 @@ const reducer = (state = initialState, action: Action) => {
         draft.randomImages.loading = false;
         draft.randomImages.error = null;
         break;
+      case FETCH_USER_LIKED_IMAGES.SUCCESS:
+        draft.likedImages.data = draft.likedImages.data.concat(action.payload);
+        break;
       case LIKE_IMAGE.SUCCESS:
         draft.likedImages.data.push(
-          draft.randomImages.data[action.payload.data.index]
+          draft.randomImages.data[draft.currentImageIndex]
         );
-        draft.currentImageIndex = action.payload.data.index + 1;
+        draft.currentImageIndex = draft.currentImageIndex + 1;
         break;
       case UNLIKE_IMAGE.SUCCESS:
-        draft.currentImageIndex = action.payload.data.index + 1;
+        draft.currentImageIndex = draft.currentImageIndex + 1;
         break;
       default:
         return state;

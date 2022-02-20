@@ -18,7 +18,7 @@ export default async function request({
 }: RequestConfig): Promise<AxiosResponse<any, any> | never> {
   const url = `${authEndpoint ? BASE_URL : API_URL}${endpoint}`;
   try {
-    throw new Error("Not implemented");
+    // throw new Error("Not implemented");
     const response: AxiosResponse = await axios({
       method,
       url,

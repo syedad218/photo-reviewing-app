@@ -12,12 +12,7 @@ const AppContainer = () => {
     dispatch(authenticateUser.start());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  //   return <div>{isAuthenticated ? <ImageApproval /> : <h3>Loading...</h3>}</div>;
-  return (
-    <div>
-      <ImageApproval />
-    </div>
-  );
+  return <div>{isAuthenticated ? <ImageApproval /> : <h3>Loading...</h3>}</div>;
 };
 
 export default AppContainer;

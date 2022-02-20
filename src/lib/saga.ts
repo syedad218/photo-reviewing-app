@@ -98,7 +98,11 @@ function* fetchUserLikedImagesStart() {
       },
     });
     const { data } = response || {};
-    yield put(fetchUserLikedImages.success({ payload: data }));
+    const processedData = data.map((item: any) => ({
+      id: item.id,
+      url: item.urls,
+    }));
+    yield put(fetchUserLikedImages.success({ payload: processedData }));
   } catch (error) {
     yield put(fetchUserLikedImages.error());
   }
@@ -120,7 +124,11 @@ function* fetchRandomImageStart() {
       },
     });
     const { data } = response || {};
-    yield put(fetchRandomImage.success({ payload: data }));
+    const processedData = data.map((item: any) => ({
+      id: item.id,
+      url: item.urls,
+    }));
+    yield put(fetchRandomImage.success({ payload: processedData }));
   } catch (error) {
     yield put(fetchRandomImage.error());
   }

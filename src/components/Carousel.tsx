@@ -1,4 +1,6 @@
 import styled from "styled-components";
+import { makeSelectLikedImages } from "../containers/ImageApproval/selectors";
+import { useSelector } from "react-redux";
 
 const Container = styled.div`
   display: flex;
@@ -8,18 +10,23 @@ const Container = styled.div`
 `;
 
 const Carousel = ({}) => {
-  const images = [1, 2, , 3, 4, 5, 6, 7, 8];
+  const images = useSelector(makeSelectLikedImages);
+
   return (
     <Container>
-      {images.map((image, index) => (
-        <img
-          key={image}
-          src={`https://picsum.photos/id/${image}/200/200`}
-          width={200}
-          height={100}
-          alt="liked"
-        />
-      ))}
+      {Array.isArray(images) && images.length > 0 ? (
+        images.map((image, index) => (
+          <img
+            key={image.id}
+            src={`${image.url.thumb}`}
+            width={200}
+            height={100}
+            alt="liked"
+          />
+        ))
+      ) : (
+        <div>Like +</div>
+      )}
     </Container>
   );
 };
