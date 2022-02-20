@@ -1,12 +1,11 @@
 import { FC } from "react";
 
 interface Props {
-  children: React.ReactNode;
-  props?: any;
+  onClick: () => void;
 }
 
-const Button: FC<Props> = ({ children, props }) => {
-  return <button>{children}</button>;
+const Button: FC<Props> = ({ children, onClick }) => {
+  return <button onClick={onClick}>{children}</button>;
 };
 
 export default Button;

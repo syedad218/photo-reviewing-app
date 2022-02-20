@@ -5,16 +5,23 @@ import {
   fetchUserProfile,
   fetchUserLikedImages,
   fetchRandomImage,
+  likeImage,
+  unlikeImage,
 } from "./actions";
 import {
   AUTHENTICATE_USER,
   FETCH_USER_PROFILE,
   FETCH_USER_LIKED_IMAGES,
   FETCH_RANDOM_IMAGE,
+  LIKE_IMAGE,
+  UNLIKE_IMAGE,
 } from "./actionTypes";
 import request from "./api";
 import { USER_AUTH_KEY, authorizationUrl } from "../constants";
-import { makeSelectUsername } from "../containers/ImageApproval/selectors";
+import {
+  makeSelectUsername,
+  makeSelectImageId,
+} from "../containers/ImageApproval/selectors";
 
 function* authenticateUserStart() {
   const accessToken = localStorage.getItem(USER_AUTH_KEY);
@@ -84,6 +91,10 @@ function* fetchUserLikedImagesStart() {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
+        params: {
+          page: 1,
+          per_page: 10,
+        },
       },
     });
     const { data } = response || {};
@@ -103,6 +114,9 @@ function* fetchRandomImageStart() {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
+        params: {
+          count: 30,
+        },
       },
     });
     const { data } = response || {};
@@ -112,9 +126,49 @@ function* fetchRandomImageStart() {
   }
 }
 
+function* likeImageStart() {
+  try {
+    const access_token = localStorage.getItem(USER_AUTH_KEY);
+    const imageId: string = yield select(makeSelectImageId);
+    yield call(request, {
+      method: "post",
+      endpoint: `photos/${imageId}/like`,
+      config: {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      },
+    });
+    yield put(likeImage.success());
+  } catch (error) {
+    yield put(likeImage.error());
+  }
+}
+
+function* unlikeImageStart() {
+  try {
+    const access_token = localStorage.getItem(USER_AUTH_KEY);
+    const imageId: string = yield select(makeSelectImageId);
+    yield call(request, {
+      method: "delete",
+      endpoint: `photos/${imageId}/like`,
+      config: {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      },
+    });
+    yield put(unlikeImage.success());
+  } catch (error) {
+    yield put(unlikeImage.error());
+  }
+}
+
 export default function* rootSaga() {
   yield takeLatest(AUTHENTICATE_USER.START, authenticateUserStart);
   yield takeLatest(FETCH_USER_PROFILE.START, fetchUserProfileStart);
   yield takeLatest(FETCH_USER_LIKED_IMAGES.START, fetchUserLikedImagesStart);
   yield takeLatest(FETCH_RANDOM_IMAGE.START, fetchRandomImageStart);
+  yield takeLatest(LIKE_IMAGE.START, likeImageStart);
+  yield takeLatest(UNLIKE_IMAGE.START, unlikeImageStart);
 }

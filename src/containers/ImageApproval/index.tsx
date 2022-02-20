@@ -3,7 +3,12 @@ import { useDispatch } from "react-redux";
 import { CardContainer, Actions } from "./styled";
 import Carousel from "../../components/Carousel";
 import Button from "../../components/Button";
-import { fetchUserLikedImages, fetchRandomImage } from "../../lib/actions";
+import {
+  fetchUserLikedImages,
+  fetchRandomImage,
+  likeImage,
+  unlikeImage,
+} from "../../lib/actions";
 import RandomImage from "./randomImage";
 
 interface Props {}
@@ -16,6 +21,14 @@ const ImageApproval: FC<Props> = ({}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleLike = () => {
+    dispatch(likeImage.start());
+  };
+
+  const handleDislike = () => {
+    dispatch(unlikeImage.start());
+  };
+
   return (
     <CardContainer>
       <p className="card-header">IMAGE APPROVAL APPLICATION</p>
@@ -26,8 +39,8 @@ const ImageApproval: FC<Props> = ({}) => {
       <RandomImage />
       <div className="card-footer">
         <Actions>
-          <Button>Dislike</Button>
-          <Button>Like</Button>
+          <Button onClick={handleDislike}>Dislike</Button>
+          <Button onClick={handleLike}>Like</Button>
         </Actions>
       </div>
     </CardContainer>
