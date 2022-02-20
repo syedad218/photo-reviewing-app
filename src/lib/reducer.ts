@@ -12,7 +12,7 @@ import { Action } from "./actions";
 interface Image {
   id: string;
   url: {
-    thumb: string;
+    small: string;
     regular: string;
   };
 }

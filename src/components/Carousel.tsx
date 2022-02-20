@@ -16,13 +16,15 @@ const Carousel = ({}) => {
     <Container>
       {Array.isArray(images) && images.length > 0 ? (
         images.map((image, index) => (
-          <img
-            key={image.id}
-            src={`${image.url.thumb}`}
-            width={200}
-            height={100}
-            alt="liked"
-          />
+          <div style={{ width: "80px", height: "100px" }}>
+            <img
+              key={image.id}
+              src={`${image.url.small}`}
+              width={80}
+              height={100}
+              alt="liked"
+            />
+          </div>
         ))
       ) : (
         <div>Like +</div>
