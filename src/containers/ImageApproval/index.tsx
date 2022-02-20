@@ -1,36 +1,36 @@
 import { FC, useEffect } from "react";
-import { USER_AUTH_KEY, authorizationUrl } from "../../constants";
-import { authenticated } from "./selectors";
-import { useSelector, useDispatch } from "react-redux";
-import { authenticateUser } from "../../lib/actions";
+import { useDispatch } from "react-redux";
+import { CardContainer, Actions } from "./styled";
+import Carousel from "../../components/Carousel";
+import Button from "../../components/Button";
+import { fetchUserLikedImages, fetchRandomImage } from "../../lib/actions";
+import RandomImage from "./randomImage";
 
 interface Props {}
 
 const ImageApproval: FC<Props> = ({}) => {
-  const isAuthenticated = useSelector(authenticated);
   const dispatch = useDispatch();
   useEffect(() => {
-    const accessToken = localStorage.getItem(USER_AUTH_KEY);
-    const searchParams = new URLSearchParams(window.location.search);
-    const code = searchParams.get("code");
-    if (code && accessToken) {
-      searchParams.delete("code");
-      window.history.replaceState({}, "", `${window.location.pathname}`);
-      dispatch(authenticateUser.success());
-    } else if (accessToken) {
-      dispatch(authenticateUser.success());
-    } else if (code) {
-      dispatch(authenticateUser.start({ metadata: { code } }));
-    } else {
-      window.location.href = authorizationUrl;
-    }
+    dispatch(fetchUserLikedImages.start());
+    dispatch(fetchRandomImage.start());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <>
-      <h1>{isAuthenticated ? "YIpeee!!!" : "Please Authenticate the user"}</h1>
-    </>
+    <CardContainer>
+      <p className="card-header">IMAGE APPROVAL APPLICATION</p>
+      <div className="carousel-container">
+        <p>APPROVED IMAGES (7)</p>
+        <Carousel />
+      </div>
+      <RandomImage />
+      <div className="card-footer">
+        <Actions>
+          <Button>Dislike</Button>
+          <Button>Like</Button>
+        </Actions>
+      </div>
+    </CardContainer>
   );
 };
 

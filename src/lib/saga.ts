@@ -1,36 +1,120 @@
 import { AxiosResponse } from "axios";
-import { put, takeLatest, call } from "redux-saga/effects";
-import { authenticateUser } from "./actions";
-import { AUTHENTICATE_USER } from "./actionTypes";
-import { USER_AUTH_KEY } from "../constants";
+import { put, takeLatest, call, select } from "redux-saga/effects";
+import {
+  authenticateUser,
+  fetchUserProfile,
+  fetchUserLikedImages,
+  fetchRandomImage,
+} from "./actions";
+import {
+  AUTHENTICATE_USER,
+  FETCH_USER_PROFILE,
+  FETCH_USER_LIKED_IMAGES,
+  FETCH_RANDOM_IMAGE,
+} from "./actionTypes";
 import request from "./api";
+import { USER_AUTH_KEY, authorizationUrl } from "../constants";
+import { makeSelectUsername } from "../containers/ImageApproval/selectors";
 
-function* authenticateUserStart(data: any) {
-  const code = data?.metadata?.code;
+function* authenticateUserStart() {
+  const accessToken = localStorage.getItem(USER_AUTH_KEY);
+  const searchParams = new URLSearchParams(window.location.search);
+  const code = searchParams.get("code");
+  if (code && accessToken) {
+    searchParams.delete("code");
+    window.history.replaceState({}, "", `${window.location.pathname}`);
+    yield put(fetchUserProfile.start());
+  } else if (accessToken) {
+    yield put(fetchUserProfile.start());
+  } else if (code) {
+    try {
+      const response: AxiosResponse = yield call(request, {
+        method: "post",
+        endpoint: "oauth/token",
+        authEndpoint: true,
+        config: {
+          data: {
+            client_id: process.env.REACT_APP_ACCESS_KEY,
+            client_secret: process.env.REACT_APP_SECRET_KEY,
+            grant_type: "authorization_code",
+            code: code,
+            redirect_uri: process.env.REACT_APP_REDIRECT_URI,
+          },
+        },
+      });
+      const { data } = response || {};
+      const access_token = data?.access_token;
+      localStorage.setItem(USER_AUTH_KEY, access_token);
+      yield put(fetchUserProfile.start());
+    } catch (error) {
+      yield put(authenticateUser.error());
+    }
+  } else {
+    window.location.href = authorizationUrl;
+  }
+}
+
+function* fetchUserProfileStart() {
   try {
+    const access_token = localStorage.getItem(USER_AUTH_KEY);
     const response: AxiosResponse = yield call(request, {
-      method: "post",
-      endpoint: "oauth/token",
+      method: "get",
+      endpoint: "me",
       config: {
-        data: {
-          client_id: process.env.REACT_APP_ACCESS_KEY,
-          client_secret: process.env.REACT_APP_SECRET_KEY,
-          grant_type: "authorization_code",
-          code: code,
-          redirect_uri: process.env.REACT_APP_REDIRECT_URI,
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      },
+    });
+    const { id, username } = response?.data ?? {};
+    yield put(fetchUserProfile.success({ payload: { id, username } }));
+  } catch (error) {
+    yield put(fetchUserProfile.error());
+  }
+}
+
+function* fetchUserLikedImagesStart() {
+  try {
+    const access_token = localStorage.getItem(USER_AUTH_KEY);
+    const username: string = yield select(makeSelectUsername);
+    const response: AxiosResponse = yield call(request, {
+      method: "get",
+      endpoint: `users/${username}/likes`,
+      config: {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
         },
       },
     });
     const { data } = response || {};
-    const access_token = data?.access_token;
-    localStorage.setItem(USER_AUTH_KEY, access_token);
-
-    yield put(authenticateUser.success());
+    yield put(fetchUserLikedImages.success({ payload: data }));
   } catch (error) {
-    yield put(authenticateUser.error());
+    yield put(fetchUserLikedImages.error());
+  }
+}
+
+function* fetchRandomImageStart() {
+  try {
+    const access_token = localStorage.getItem(USER_AUTH_KEY);
+    const response: AxiosResponse = yield call(request, {
+      method: "get",
+      endpoint: "photos/random",
+      config: {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      },
+    });
+    const { data } = response || {};
+    yield put(fetchRandomImage.success({ payload: data }));
+  } catch (error) {
+    yield put(fetchRandomImage.error());
   }
 }
 
 export default function* rootSaga() {
   yield takeLatest(AUTHENTICATE_USER.START, authenticateUserStart);
+  yield takeLatest(FETCH_USER_PROFILE.START, fetchUserProfileStart);
+  yield takeLatest(FETCH_USER_LIKED_IMAGES.START, fetchUserLikedImagesStart);
+  yield takeLatest(FETCH_RANDOM_IMAGE.START, fetchRandomImageStart);
 }

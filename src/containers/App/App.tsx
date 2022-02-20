@@ -1,12 +1,12 @@
 import { Provider } from "react-redux";
 import { store } from "../../lib/store";
-import ImageApproval from "../ImageApproval";
+import AppContainer from "../AppContainer";
 
 function App() {
   return (
     <Provider store={store}>
       <div className="App">
-        <ImageApproval />
+        <AppContainer />
       </div>
     </Provider>
   );

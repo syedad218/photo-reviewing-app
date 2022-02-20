@@ -1,15 +1,34 @@
-import { AUTHENTICATE_USER } from "./actionTypes";
+import {
+  AUTHENTICATE_USER,
+  FETCH_USER_PROFILE,
+  FETCH_USER_LIKED_IMAGES,
+  FETCH_RANDOM_IMAGE,
+} from "./actionTypes";
 
-const createAction = (actionBaseType: string) => ({
+export interface Action {
+  type: string;
+  payload: any;
+}
+
+export interface ActionType {
+  START: string;
+  SUCCESS: string;
+  ERROR: string;
+}
+
+const createAction = (actionBaseType: ActionType) => ({
   start: (data?: any) => ({
-    type: AUTHENTICATE_USER.START,
+    type: actionBaseType.START,
     metadata: data?.metadata,
   }),
   success: (data?: any) => ({
-    type: AUTHENTICATE_USER.SUCCESS,
+    type: actionBaseType.SUCCESS,
     payload: data?.payload,
   }),
-  error: (error?: any) => ({ type: AUTHENTICATE_USER.ERROR, error }),
+  error: (error?: any) => ({ type: actionBaseType.ERROR, error }),
 });
 
-export const authenticateUser = createAction(AUTHENTICATE_USER.BASE);
+export const authenticateUser = createAction(AUTHENTICATE_USER);
+export const fetchUserProfile = createAction(FETCH_USER_PROFILE);
+export const fetchUserLikedImages = createAction(FETCH_USER_LIKED_IMAGES);
+export const fetchRandomImage = createAction(FETCH_RANDOM_IMAGE);
