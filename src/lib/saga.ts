@@ -18,163 +18,174 @@ import {
 } from "./actionTypes";
 import request from "./api";
 import { USER_AUTH_KEY, authorizationUrl } from "../constants";
+import { makeSelectUserId } from "../containers/ImageApproval/selectors";
+import { signInAnonymously } from "firebase/auth";
+import { auth, db } from "../firebase-config";
 import {
-  makeSelectUsername,
-  makeSelectImageId,
-} from "../containers/ImageApproval/selectors";
+  doc,
+  getDoc,
+  setDoc,
+  writeBatch,
+  collection,
+  query,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+
+const login = async () => {
+  const response = await signInAnonymously(auth);
+  return response?.user?.uid;
+};
+
+const createUserDoc = async (userId: string) => {
+  const docRef = doc(db, "users", userId);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return;
+  } else {
+    setDoc(docRef, { id: userId });
+  }
+};
+
+const createRandomImageDoc = async (
+  userId: string,
+  imageId: string,
+  urls: any,
+  batch: any
+) => {
+  const docRef = doc(db, `users/${userId}/randomImages`, imageId);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return false;
+  } else {
+    batch.set(docRef, { id: imageId, urls });
+    return true;
+  }
+};
+
+const fetchRadomImages = async (userId: string) => {
+  const docRef = doc(db, "users", userId);
+  const docSnap = await getDoc(docRef);
+  let randomImages: any = [];
+  if (docSnap.exists()) {
+    randomImages = docSnap.data()?.randomImages || [];
+  } else {
+    // do nothing
+  }
+  console.log("random-images", randomImages);
+  return randomImages;
+};
+
+const iterateImages = (data: any, userId: string) => {
+  const processedData = data.map((image: any) => ({
+    id: image.id,
+    urls: { small: image.urls.small, regular: image.urls.regular },
+  }));
+  const userRef = doc(db, "users", userId);
+  updateDoc(userRef, { randomImages: processedData });
+  return processedData;
+};
 
 function* authenticateUserStart() {
-  const accessToken = localStorage.getItem(USER_AUTH_KEY);
-  const searchParams = new URLSearchParams(window.location.search);
-  const code = searchParams.get("code");
-  if (code && accessToken) {
-    searchParams.delete("code");
-    window.history.replaceState({}, "", `${window.location.pathname}`);
-    yield put(fetchUserProfile.start());
-  } else if (accessToken) {
-    yield put(fetchUserProfile.start());
-  } else if (code) {
-    try {
-      const response: AxiosResponse = yield call(request, {
-        method: "post",
-        endpoint: "oauth/token",
-        authEndpoint: true,
-        config: {
-          data: {
-            client_id: process.env.REACT_APP_ACCESS_KEY,
-            client_secret: process.env.REACT_APP_SECRET_KEY,
-            grant_type: "authorization_code",
-            code: code,
-            redirect_uri: process.env.REACT_APP_REDIRECT_URI,
-          },
-        },
-      });
-      const { data } = response || {};
-      const access_token = data?.access_token;
-      localStorage.setItem(USER_AUTH_KEY, access_token);
-      yield put(fetchUserProfile.start());
-    } catch (error) {
-      yield put(authenticateUser.error());
-    }
-  } else {
-    window.location.href = authorizationUrl;
-  }
-}
-
-function* fetchUserProfileStart() {
   try {
-    const access_token = localStorage.getItem(USER_AUTH_KEY);
-    const response: AxiosResponse = yield call(request, {
-      method: "get",
-      endpoint: "me",
-      config: {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      },
-    });
-    const { id, username } = response?.data ?? {};
-    yield put(fetchUserProfile.success({ payload: { id, username } }));
+    const userId: string = yield call(login);
+    yield call(createUserDoc, userId);
+    yield put(authenticateUser.success({ payload: userId }));
   } catch (error) {
-    yield put(fetchUserProfile.error());
-  }
-}
-
-function* fetchUserLikedImagesStart() {
-  try {
-    const access_token = localStorage.getItem(USER_AUTH_KEY);
-    const username: string = yield select(makeSelectUsername);
-    const response: AxiosResponse = yield call(request, {
-      method: "get",
-      endpoint: `users/${username}/likes`,
-      config: {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-        params: {
-          page: 1,
-          per_page: 10,
-        },
-      },
-    });
-    const { data } = response || {};
-    const processedData = data.map((item: any) => ({
-      id: item.id,
-      url: item.urls,
-    }));
-    yield put(fetchUserLikedImages.success({ payload: processedData }));
-  } catch (error) {
-    yield put(fetchUserLikedImages.error());
+    console.log("error in authentication", error);
+    yield put(authenticateUser.error());
+    // do nothing
   }
 }
 
 function* fetchRandomImageStart() {
   try {
-    const access_token = localStorage.getItem(USER_AUTH_KEY);
-    const response: AxiosResponse = yield call(request, {
-      method: "get",
-      endpoint: "photos/random",
-      config: {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
+    const userId: string = yield select(makeSelectUserId);
+    console.log(userId);
+    // ts-ignore TODO: fix this
+    const randomImages: string = yield call(fetchRadomImages, userId);
+    let processedData = randomImages;
+    if (randomImages.length === 0) {
+      const response: AxiosResponse = yield call(request, {
+        method: "get",
+        endpoint: "photos/random",
+        config: {
+          params: {
+            count: 30,
+            client_id: process.env.REACT_APP_ACCESS_KEY,
+          },
         },
-        params: {
-          count: 30,
-        },
-      },
-    });
-    const { data } = response || {};
-    const processedData = data.map((item: any) => ({
-      id: item.id,
-      url: item.urls,
-    }));
+      });
+      const { data } = response || {};
+      processedData = iterateImages(data, userId);
+      console.log("processedData", processedData);
+    }
     yield put(fetchRandomImage.success({ payload: processedData }));
   } catch (error) {
-    yield put(fetchRandomImage.error());
+    // yield put(fetchRandomImage.error());
   }
+}
+
+function* fetchUserLikedImagesStart() {
+  try {
+    // const access_token = localStorage.getItem(USER_AUTH_KEY);
+    // const username: string = yield select(makeSelectUsername);
+    // const response: AxiosResponse = yield call(request, {
+    //   method: "get",
+    //   endpoint: `users/${username}/likes`,
+    //   config: {
+    //     headers: {
+    //       Authorization: `Bearer ${access_token}`,
+    //     },
+    //     params: {
+    //       page: 1,
+    //       per_page: 10,
+    //     },
+    //   },
+    // });
+  } catch (error) {}
 }
 
 function* likeImageStart() {
   try {
-    const access_token = localStorage.getItem(USER_AUTH_KEY);
-    const imageId: string = yield select(makeSelectImageId);
-    yield call(request, {
-      method: "post",
-      endpoint: `photos/${imageId}/like`,
-      config: {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      },
-    });
-    yield put(likeImage.success());
+    // const access_token = localStorage.getItem(USER_AUTH_KEY);
+    // const imageId: string = yield select(makeSelectImageId);
+    // yield call(request, {
+    //   method: "post",
+    //   endpoint: `photos/${imageId}/like`,
+    //   config: {
+    //     headers: {
+    //       Authorization: `Bearer ${access_token}`,
+    //     },
+    //   },
+    // });
+    // yield put(likeImage.success());
   } catch (error) {
-    yield put(likeImage.error());
+    // yield put(likeImage.error());
   }
 }
 
 function* unlikeImageStart() {
   try {
-    const access_token = localStorage.getItem(USER_AUTH_KEY);
-    const imageId: string = yield select(makeSelectImageId);
-    yield call(request, {
-      method: "delete",
-      endpoint: `photos/${imageId}/like`,
-      config: {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      },
-    });
-    yield put(unlikeImage.success());
+    // const access_token = localStorage.getItem(USER_AUTH_KEY);
+    // const imageId: string = yield select(makeSelectImageId);
+    // yield call(request, {
+    //   method: "delete",
+    //   endpoint: `photos/${imageId}/like`,
+    //   config: {
+    //     headers: {
+    //       Authorization: `Bearer ${access_token}`,
+    //     },
+    //   },
+    // });
+    // yield put(unlikeImage.success());
   } catch (error) {
-    yield put(unlikeImage.error());
+    // yield put(unlikeImage.error());
   }
 }
 
 export default function* rootSaga() {
   yield takeLatest(AUTHENTICATE_USER.START, authenticateUserStart);
-  yield takeLatest(FETCH_USER_PROFILE.START, fetchUserProfileStart);
   yield takeLatest(FETCH_USER_LIKED_IMAGES.START, fetchUserLikedImagesStart);
   yield takeLatest(FETCH_RANDOM_IMAGE.START, fetchRandomImageStart);
   yield takeLatest(LIKE_IMAGE.START, likeImageStart);

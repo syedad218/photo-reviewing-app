@@ -19,7 +19,7 @@ const RandomImage: FC<Props> = () => {
   return (
     <ImageContainer>
       {image ? (
-        <img src={image.url.regular} alt="random" width={400} height={400} />
+        <img src={image.urls.regular} alt="random" width={400} height={400} />
       ) : (
         <div>+</div>
       )}

@@ -11,13 +11,12 @@ import { Action } from "./actions";
 
 interface Image {
   id: string;
-  url: {
+  urls: {
     small: string;
     regular: string;
   };
 }
 export interface State {
-  authenticated: boolean;
   user: {
     id: string;
     username: string;
@@ -40,7 +39,6 @@ export const initialState = {
   authenticated: false,
   user: {
     id: null,
-    username: null,
   },
   randomImages: {
     loading: false,
@@ -61,9 +59,7 @@ const reducer = (state = initialState, action: Action) => {
     switch (action.type) {
       case AUTHENTICATE_USER.SUCCESS:
         // TODO: handle success
-        break;
-      case FETCH_USER_PROFILE.SUCCESS:
-        draft.user = action.payload;
+        draft.user.id = action.payload;
         draft.authenticated = true;
         break;
       case FETCH_RANDOM_IMAGE.SUCCESS:
