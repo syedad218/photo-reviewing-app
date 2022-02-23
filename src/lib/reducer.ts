@@ -63,7 +63,8 @@ const reducer = (state = initialState, action: Action) => {
         draft.authenticated = true;
         break;
       case FETCH_RANDOM_IMAGE.SUCCESS:
-        draft.randomImages.data = action.payload;
+        draft.randomImages.data = action.payload.images;
+        draft.currentImageIndex = action.payload.currentRandomImageIndex || 0;
         draft.randomImages.loading = false;
         draft.randomImages.error = null;
         break;
@@ -71,9 +72,8 @@ const reducer = (state = initialState, action: Action) => {
         draft.likedImages.data = draft.likedImages.data.concat(action.payload);
         break;
       case LIKE_IMAGE.SUCCESS:
-        draft.likedImages.data.push(
-          draft.randomImages.data[draft.currentImageIndex]
-        );
+        // @ts-ignore
+        draft.likedImages.data = [action.payload, ...draft.likedImages.data];
         draft.currentImageIndex = draft.currentImageIndex + 1;
         break;
       case UNLIKE_IMAGE.SUCCESS:

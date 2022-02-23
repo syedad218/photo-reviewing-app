@@ -18,73 +18,20 @@ import {
 } from "./actionTypes";
 import request from "./api";
 import { USER_AUTH_KEY, authorizationUrl } from "../constants";
-import { makeSelectUserId } from "../containers/ImageApproval/selectors";
-import { signInAnonymously } from "firebase/auth";
-import { auth, db } from "../firebase-config";
 import {
-  doc,
-  getDoc,
-  setDoc,
-  writeBatch,
-  collection,
-  query,
-  getDocs,
-  updateDoc,
-} from "firebase/firestore";
-
-const login = async () => {
-  const response = await signInAnonymously(auth);
-  return response?.user?.uid;
-};
-
-const createUserDoc = async (userId: string) => {
-  const docRef = doc(db, "users", userId);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    return;
-  } else {
-    setDoc(docRef, { id: userId });
-  }
-};
-
-const createRandomImageDoc = async (
-  userId: string,
-  imageId: string,
-  urls: any,
-  batch: any
-) => {
-  const docRef = doc(db, `users/${userId}/randomImages`, imageId);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    return false;
-  } else {
-    batch.set(docRef, { id: imageId, urls });
-    return true;
-  }
-};
-
-const fetchRadomImages = async (userId: string) => {
-  const docRef = doc(db, "users", userId);
-  const docSnap = await getDoc(docRef);
-  let randomImages: any = [];
-  if (docSnap.exists()) {
-    randomImages = docSnap.data()?.randomImages || [];
-  } else {
-    // do nothing
-  }
-  console.log("random-images", randomImages);
-  return randomImages;
-};
-
-const iterateImages = (data: any, userId: string) => {
-  const processedData = data.map((image: any) => ({
-    id: image.id,
-    urls: { small: image.urls.small, regular: image.urls.regular },
-  }));
-  const userRef = doc(db, "users", userId);
-  updateDoc(userRef, { randomImages: processedData });
-  return processedData;
-};
+  makeSelectUserId,
+  makeSelectCurrentImage,
+  makeSelectLikedImages,
+} from "../containers/ImageApproval/selectors";
+import {
+  login,
+  createUserDoc,
+  fetchRadomImages,
+  iterateImages,
+  updateLikedImages,
+  updateCurrentImageIndex,
+  fetchLikedImages,
+} from "./firestoreService";
 
 function* authenticateUserStart() {
   try {
@@ -98,14 +45,20 @@ function* authenticateUserStart() {
   }
 }
 
-function* fetchRandomImageStart() {
+function* fetchRandomImageStart(data: any) {
   try {
+    const { metadata } = data || {};
+    const { apiOnly } = metadata || {};
     const userId: string = yield select(makeSelectUserId);
     console.log(userId);
     // ts-ignore TODO: fix this
-    const randomImages: string = yield call(fetchRadomImages, userId);
-    let processedData = randomImages;
-    if (randomImages.length === 0) {
+    let imagesonFirebase = {};
+    if (!apiOnly) {
+      imagesonFirebase = yield call(fetchRadomImages, userId);
+    }
+    // @ts-ignore
+    let processedData = imagesonFirebase?.randomImages ?? [];
+    if (processedData.length === 0) {
       const response: AxiosResponse = yield call(request, {
         method: "get",
         endpoint: "photos/random",
@@ -120,48 +73,45 @@ function* fetchRandomImageStart() {
       processedData = iterateImages(data, userId);
       console.log("processedData", processedData);
     }
-    yield put(fetchRandomImage.success({ payload: processedData }));
+    yield put(
+      fetchRandomImage.success({
+        payload: {
+          images: processedData,
+          // @ts-ignore
+          currentRandomImageIndex: imagesonFirebase?.currentRandomImageIndex,
+        },
+      })
+    );
   } catch (error) {
     // yield put(fetchRandomImage.error());
+    console.log(error);
   }
 }
 
-function* fetchUserLikedImagesStart() {
+function* fetchUserLikedImagesStart(data: any) {
   try {
-    // const access_token = localStorage.getItem(USER_AUTH_KEY);
-    // const username: string = yield select(makeSelectUsername);
-    // const response: AxiosResponse = yield call(request, {
-    //   method: "get",
-    //   endpoint: `users/${username}/likes`,
-    //   config: {
-    //     headers: {
-    //       Authorization: `Bearer ${access_token}`,
-    //     },
-    //     params: {
-    //       page: 1,
-    //       per_page: 10,
-    //     },
-    //   },
-    // });
-  } catch (error) {}
+    const userId: string = yield select(makeSelectUserId);
+    // @ts-ignore
+    const likedImages: any = yield select(makeSelectLikedImages);
+    const lastDoc = likedImages[likedImages.length - 1];
+    // @ts-ignore
+    const likedImagesDocs: any = yield fetchLikedImages(userId, lastDoc);
+    yield put(fetchUserLikedImages.success({ payload: likedImagesDocs }));
+  } catch (error) {
+    yield put(fetchUserLikedImages.error());
+  }
 }
 
 function* likeImageStart() {
   try {
-    // const access_token = localStorage.getItem(USER_AUTH_KEY);
-    // const imageId: string = yield select(makeSelectImageId);
-    // yield call(request, {
-    //   method: "post",
-    //   endpoint: `photos/${imageId}/like`,
-    //   config: {
-    //     headers: {
-    //       Authorization: `Bearer ${access_token}`,
-    //     },
-    //   },
-    // });
-    // yield put(likeImage.success());
+    const userId: string = yield select(makeSelectUserId);
+    // @ts-ignore
+    const image: any = yield select(makeSelectCurrentImage);
+    updateLikedImages(userId, image);
+    updateCurrentImageIndex(userId);
+    yield put(likeImage.success({ payload: image }));
   } catch (error) {
-    // yield put(likeImage.error());
+    yield put(likeImage.error());
   }
 }
 
