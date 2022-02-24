@@ -22,6 +22,8 @@ import {
   makeSelectUserId,
   makeSelectCurrentImage,
   makeSelectLikedImages,
+  makeSelectCurrentImageIndex,
+  makeSelectRandomImages,
 } from "../containers/ImageApproval/selectors";
 import {
   login,
@@ -107,10 +109,31 @@ function* likeImageStart() {
     const userId: string = yield select(makeSelectUserId);
     // @ts-ignore
     const image: any = yield select(makeSelectCurrentImage);
+    const currentImageIndex: number = yield select(makeSelectCurrentImageIndex);
+    // @ts-ignore
+    const randomImages: any = yield select(makeSelectRandomImages);
+    const isLastRandomImage = currentImageIndex === randomImages.length - 1;
+    // @ts-ignore
+    const likedImages: any = yield select(makeSelectLikedImages);
+    const imageIndex = likedImages.findIndex((img: any) => img.id === image.id);
+    let payload = likedImages ?? [];
+    if (imageIndex === -1) {
+      payload = [image, ...likedImages];
+    } else {
+      const existingImage = payload.splice(imageIndex, 1);
+      payload = [existingImage, ...payload];
+    }
+    yield put(likeImage.success({ payload }));
+    // firebase updates run after local updates
     updateLikedImages(userId, image);
-    updateCurrentImageIndex(userId);
-    yield put(likeImage.success({ payload: image }));
+    if (isLastRandomImage) {
+      updateCurrentImageIndex(userId, false);
+      yield put(fetchRandomImage.start({ metadata: { apiOnly: true } }));
+    } else {
+      updateCurrentImageIndex(userId);
+    }
   } catch (error) {
+    console.log(error);
     yield put(likeImage.error());
   }
 }

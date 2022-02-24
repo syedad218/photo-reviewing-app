@@ -33,7 +33,6 @@ const ImageApproval: FC<Props> = ({}) => {
     <CardContainer>
       <p className="card-header">IMAGE APPROVAL APPLICATION</p>
       <div className="carousel-container">
-        <p>APPROVED IMAGES (7)</p>
         <Carousel />
       </div>
       <RandomImage />

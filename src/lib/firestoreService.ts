@@ -33,15 +33,19 @@ export const createUserDoc = async (userId: string) => {
 
 export const fetchLikedImages = async (userId: string, lastDoc: any) => {
   const collectionRef = collection(db, `users/${userId}/likedImages`);
-  const queryRef = query(
-    collectionRef,
-    orderBy("createdAt"),
-    startAfter(lastDoc || 0),
-    limit(30)
-  );
+  let queryRef;
+  if (lastDoc) {
+    queryRef = query(
+      collectionRef,
+      orderBy("createdAt", "desc"),
+      startAfter(lastDoc),
+      limit(30)
+    );
+  } else {
+    queryRef = query(collectionRef, orderBy("createdAt", "desc"), limit(30));
+  }
   const docsSnapshot = await getDocs(queryRef);
   const likedImages = docsSnapshot.docs.map((doc) => doc.data());
-  likedImages.reverse();
   return likedImages;
 };
 
@@ -52,7 +56,7 @@ export const updateCurrentImageIndex = async (
   const userRef = doc(db, "users", userId);
   // Atomically increment the population of the city by 1.
   updateDoc(userRef, {
-    currentRandomImageIndex: increment(1),
+    currentRandomImageIndex: isIncrement ? increment(1) : 0,
   });
 };
 

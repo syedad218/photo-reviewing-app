@@ -13,22 +13,25 @@ const Carousel = ({}) => {
   const images = useSelector(makeSelectLikedImages);
 
   return (
-    <Container>
-      {Array.isArray(images) && images.length > 0 ? (
-        images.map((image, index) => (
-          <div style={{ width: "80px", height: "100px" }} key={image.id}>
-            <img
-              src={`${image.urls.small}`}
-              width={80}
-              height={100}
-              alt="liked"
-            />
-          </div>
-        ))
-      ) : (
-        <div>Like +</div>
-      )}
-    </Container>
+    <>
+      <p>APPROVED IMAGES</p>
+      <Container>
+        {Array.isArray(images) && images.length > 0 ? (
+          images.map((image, index) => (
+            <div style={{ width: "80px", height: "100px" }} key={image.id}>
+              <img
+                src={`${image.urls.small}`}
+                width={80}
+                height={100}
+                alt="liked"
+              />
+            </div>
+          ))
+        ) : (
+          <div>Like +</div>
+        )}
+      </Container>
+    </>
   );
 };
 

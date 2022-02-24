@@ -73,7 +73,7 @@ const reducer = (state = initialState, action: Action) => {
         break;
       case LIKE_IMAGE.SUCCESS:
         // @ts-ignore
-        draft.likedImages.data = [action.payload, ...draft.likedImages.data];
+        draft.likedImages.data = action.payload;
         draft.currentImageIndex = draft.currentImageIndex + 1;
         break;
       case UNLIKE_IMAGE.SUCCESS:
