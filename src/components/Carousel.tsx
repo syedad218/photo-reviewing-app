@@ -24,8 +24,6 @@ const Carousel = ({}) => {
 
   const observer = useRef();
 
-  console.log("hasMore", hasMore);
-
   const lastElementRef = useCallback(
     (node) => {
       if (loading) return;

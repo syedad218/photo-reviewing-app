@@ -93,7 +93,6 @@ function* fetchUserLikedImagesStart(data: any) {
     const userId: string = yield select(makeSelectUserId);
     // @ts-ignore
     const lastDoc: any = yield select(makeSelectLastFetchedLikedImage);
-    console.log("lastDoc", lastDoc?.data()?.id);
     // @ts-ignore
     const { likedImages, lastImageSnapshot, hasMore } = yield fetchLikedImages(
       userId,
@@ -123,12 +122,12 @@ function* likeImageStart() {
 
     // incorrect because i'm only checking locally if it exists or not???? :thinking_face:
     const imageIndex = likedImages.findIndex((img: any) => img.id === image.id);
-    let payload = likedImages ?? [];
+    let payload = [...likedImages] ?? [];
     if (imageIndex === -1) {
       payload = [image, ...likedImages];
     } else {
       const existingImage = payload.splice(imageIndex, 1);
-      payload = [existingImage, ...payload];
+      payload = [existingImage[0], ...payload];
     }
     yield put(likeImage.success({ payload }));
     // firebase updates run after local updates
