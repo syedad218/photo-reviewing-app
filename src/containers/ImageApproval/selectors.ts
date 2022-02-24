@@ -7,6 +7,10 @@ export const makeSelectRandomImages = (state: State) => state.randomImages.data;
 export const makeSelectLikedImages = (state: State) => state.likedImages.data;
 export const makeSelectIsUserLikedImageLoading = (state: State) =>
   state.likedImages.loading;
+export const makeSelectHasMoreLikedImages = (state: State) =>
+  state.likedImages.hasMore;
+export const makeSelectLastFetchedLikedImage = (state: State) =>
+  state.likedImages.lastImageSnapshot;
 export const makeSelectCurrentImage = (state: State) =>
   state.randomImages.data[state.currentImageIndex];
 export const makeSelectCurrentImageIndex = (state: State) =>

@@ -31,7 +31,8 @@ export interface State {
     loading: boolean;
     error: string;
     data: Array<Image>;
-    currentPage: number;
+    hasMore: boolean;
+    lastImageSnapshot: any;
   };
 }
 
@@ -50,7 +51,8 @@ export const initialState = {
     loading: false,
     error: null,
     data: [],
-    currentPage: 1,
+    hasMore: true,
+    lastImageSnapshot: null,
   },
 };
 
@@ -72,7 +74,11 @@ const reducer = (state = initialState, action: Action) => {
         draft.likedImages.loading = true;
         break;
       case FETCH_USER_LIKED_IMAGES.SUCCESS:
-        draft.likedImages.data = draft.likedImages.data.concat(action.payload);
+        draft.likedImages.data = draft.likedImages.data.concat(
+          action.payload.likedImages
+        );
+        draft.likedImages.lastImageSnapshot = action.payload.lastImageSnapshot;
+        draft.likedImages.hasMore = action.payload.hasMore;
         draft.likedImages.loading = false;
         break;
       case FETCH_USER_LIKED_IMAGES.ERROR:

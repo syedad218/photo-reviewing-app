@@ -46,7 +46,8 @@ export const fetchLikedImages = async (userId: string, lastDoc: any) => {
   }
   const docsSnapshot = await getDocs(queryRef);
   const likedImages = docsSnapshot.docs.map((doc) => doc.data());
-  return likedImages;
+  const lastImageSnapshot = docsSnapshot.docs[docsSnapshot.docs.length - 1];
+  return { likedImages, lastImageSnapshot, hasMore: likedImages.length };
 };
 
 export const updateCurrentImageIndex = async (
@@ -76,7 +77,6 @@ export const fetchRadomImages = async (userId: string) => {
   } else {
     // do nothing
   }
-  console.log("random-images", randomImages);
   return { randomImages, currentRandomImageIndex };
 };
 

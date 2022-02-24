@@ -3,8 +3,11 @@ import styled from "styled-components";
 import {
   makeSelectLikedImages,
   makeSelectIsUserLikedImageLoading,
+  makeSelectHasMoreLikedImages,
 } from "../containers/ImageApproval/selectors";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { fetchUserLikedImages } from "../lib/actions";
 
 const Container = styled.div`
   display: flex;
@@ -16,8 +19,12 @@ const Container = styled.div`
 const Carousel = ({}) => {
   const images = useSelector(makeSelectLikedImages);
   const loading = useSelector(makeSelectIsUserLikedImageLoading);
+  const hasMore = useSelector(makeSelectHasMoreLikedImages);
+  const dispatch = useDispatch();
 
   const observer = useRef();
+
+  console.log("hasMore", hasMore);
 
   const lastElementRef = useCallback(
     (node) => {
@@ -26,14 +33,15 @@ const Carousel = ({}) => {
       if (observer.current) observer.current.disconnect();
       // @ts-ignore
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && hasMore) {
           console.log("Intersecting");
+          dispatch(fetchUserLikedImages.start());
         }
       });
       // @ts-ignore
       if (node) observer.current.observe(node);
     },
-    [loading]
+    [loading, hasMore, dispatch]
   );
 
   return (

@@ -10,20 +10,19 @@ import {
 } from "./actions";
 import {
   AUTHENTICATE_USER,
-  FETCH_USER_PROFILE,
   FETCH_USER_LIKED_IMAGES,
   FETCH_RANDOM_IMAGE,
   LIKE_IMAGE,
   UNLIKE_IMAGE,
 } from "./actionTypes";
 import request from "./api";
-import { USER_AUTH_KEY, authorizationUrl } from "../constants";
 import {
   makeSelectUserId,
   makeSelectCurrentImage,
   makeSelectLikedImages,
   makeSelectCurrentImageIndex,
   makeSelectRandomImages,
+  makeSelectLastFetchedLikedImage,
 } from "../containers/ImageApproval/selectors";
 import {
   login,
@@ -73,7 +72,6 @@ function* fetchRandomImageStart(data: any) {
       });
       const { data } = response || {};
       processedData = iterateImages(data, userId);
-      console.log("processedData", processedData);
     }
     yield put(
       fetchRandomImage.success({
@@ -94,11 +92,18 @@ function* fetchUserLikedImagesStart(data: any) {
   try {
     const userId: string = yield select(makeSelectUserId);
     // @ts-ignore
-    const likedImages: any = yield select(makeSelectLikedImages);
-    const lastDoc = likedImages[likedImages.length - 1];
+    const lastDoc: any = yield select(makeSelectLastFetchedLikedImage);
+    console.log("lastDoc", lastDoc?.data()?.id);
     // @ts-ignore
-    const likedImagesDocs: any = yield fetchLikedImages(userId, lastDoc);
-    yield put(fetchUserLikedImages.success({ payload: likedImagesDocs }));
+    const { likedImages, lastImageSnapshot, hasMore } = yield fetchLikedImages(
+      userId,
+      lastDoc
+    );
+    yield put(
+      fetchUserLikedImages.success({
+        payload: { likedImages, lastImageSnapshot, hasMore },
+      })
+    );
   } catch (error) {
     yield put(fetchUserLikedImages.error());
   }
