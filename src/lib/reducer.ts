@@ -68,8 +68,15 @@ const reducer = (state = initialState, action: Action) => {
         draft.randomImages.loading = false;
         draft.randomImages.error = null;
         break;
+      case FETCH_USER_LIKED_IMAGES.START:
+        draft.likedImages.loading = true;
+        break;
       case FETCH_USER_LIKED_IMAGES.SUCCESS:
         draft.likedImages.data = draft.likedImages.data.concat(action.payload);
+        draft.likedImages.loading = false;
+        break;
+      case FETCH_USER_LIKED_IMAGES.ERROR:
+        draft.likedImages.loading = false;
         break;
       case LIKE_IMAGE.SUCCESS:
         // @ts-ignore

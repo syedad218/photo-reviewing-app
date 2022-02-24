@@ -115,6 +115,8 @@ function* likeImageStart() {
     const isLastRandomImage = currentImageIndex === randomImages.length - 1;
     // @ts-ignore
     const likedImages: any = yield select(makeSelectLikedImages);
+
+    // incorrect because i'm only checking locally if it exists or not???? :thinking_face:
     const imageIndex = likedImages.findIndex((img: any) => img.id === image.id);
     let payload = likedImages ?? [];
     if (imageIndex === -1) {
