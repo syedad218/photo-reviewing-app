@@ -23,6 +23,7 @@ import {
   makeSelectCurrentImageIndex,
   makeSelectRandomImages,
   makeSelectLastFetchedLikedImage,
+  makeSelectHasMoreLikedImages,
 } from "../containers/ImageApproval/selectors";
 import {
   login,
@@ -32,6 +33,8 @@ import {
   updateLikedImages,
   updateCurrentImageIndex,
   fetchLikedImages,
+  setDislikedImages,
+  removeLikedImage,
 } from "./firestoreService";
 
 function* authenticateUserStart() {
@@ -94,13 +97,15 @@ function* fetchUserLikedImagesStart(data: any) {
     // @ts-ignore
     const lastDoc: any = yield select(makeSelectLastFetchedLikedImage);
     // @ts-ignore
-    const { likedImages, lastImageSnapshot, hasMore } = yield fetchLikedImages(
-      userId,
-      lastDoc
-    );
+    const { likedImages, hasMore } = yield fetchLikedImages(userId, lastDoc);
+    // @ts-ignore
+    const existingLikedImages: any = yield select(makeSelectLikedImages);
     yield put(
       fetchUserLikedImages.success({
-        payload: { likedImages, lastImageSnapshot, hasMore },
+        payload: {
+          likedImages: existingLikedImages.concat(likedImages),
+          hasMore,
+        },
       })
     );
   } catch (error) {
@@ -123,15 +128,18 @@ function* likeImageStart() {
     // incorrect because i'm only checking locally if it exists or not???? :thinking_face:
     const imageIndex = likedImages.findIndex((img: any) => img.id === image.id);
     let payload = [...likedImages] ?? [];
+
+    // @ts-ignore
+    const likedImageSnap: any = yield call(updateLikedImages, userId, image);
+
     if (imageIndex === -1) {
-      payload = [image, ...likedImages];
+      payload = [likedImageSnap, ...likedImages];
     } else {
       const existingImage = payload.splice(imageIndex, 1);
-      payload = [existingImage[0], ...payload];
+      payload = [likedImageSnap, ...payload];
     }
     yield put(likeImage.success({ payload }));
-    // firebase updates run after local updates
-    updateLikedImages(userId, image);
+
     if (isLastRandomImage) {
       updateCurrentImageIndex(userId, false);
       yield put(fetchRandomImage.start({ metadata: { apiOnly: true } }));
@@ -146,20 +154,39 @@ function* likeImageStart() {
 
 function* unlikeImageStart() {
   try {
-    // const access_token = localStorage.getItem(USER_AUTH_KEY);
-    // const imageId: string = yield select(makeSelectImageId);
-    // yield call(request, {
-    //   method: "delete",
-    //   endpoint: `photos/${imageId}/like`,
-    //   config: {
-    //     headers: {
-    //       Authorization: `Bearer ${access_token}`,
-    //     },
-    //   },
-    // });
-    // yield put(unlikeImage.success());
+    const userId: string = yield select(makeSelectUserId);
+    // @ts-ignore
+    const image: any = yield select(makeSelectCurrentImage);
+    const currentImageIndex: number = yield select(makeSelectCurrentImageIndex);
+    // @ts-ignore
+    const randomImages: any = yield select(makeSelectRandomImages);
+    const isLastRandomImage = currentImageIndex === randomImages.length - 1;
+    // @ts-ignore
+    const likedImages: any = yield select(makeSelectLikedImages);
+    const hasMore: boolean = yield select(makeSelectHasMoreLikedImages);
+    // incorrect because i'm only checking locally if it exists or not???? :thinking_face:
+    const imageIndex = likedImages.findIndex((img: any) => img.id === image.id);
+    const payload = [...likedImages];
+    if (imageIndex !== -1) {
+      const existingImage = payload.splice(imageIndex, 1);
+      yield put(
+        fetchUserLikedImages.success({
+          payload: { likedImages: payload, hasMore },
+        })
+      );
+      removeLikedImage(userId, image.id);
+    }
+    if (isLastRandomImage) {
+      updateCurrentImageIndex(userId, false);
+      yield put(fetchRandomImage.start({ metadata: { apiOnly: true } }));
+    } else {
+      updateCurrentImageIndex(userId);
+    }
+    setDislikedImages(userId, image);
+    yield put(unlikeImage.success());
   } catch (error) {
-    // yield put(unlikeImage.error());
+    console.log(error);
+    yield put(unlikeImage.error());
   }
 }
 

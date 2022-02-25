@@ -4,7 +4,7 @@ import {
   doc,
   getDoc,
   setDoc,
-  writeBatch,
+  deleteDoc,
   collection,
   query,
   getDocs,
@@ -45,9 +45,8 @@ export const fetchLikedImages = async (userId: string, lastDoc: any) => {
     queryRef = query(collectionRef, orderBy("createdAt", "desc"), limit(30));
   }
   const docsSnapshot = await getDocs(queryRef);
-  const likedImages = docsSnapshot.docs.map((doc) => doc.data());
-  const lastImageSnapshot = docsSnapshot.docs[docsSnapshot.docs.length - 1];
-  return { likedImages, lastImageSnapshot, hasMore: likedImages.length };
+  const likedImages = docsSnapshot.docs;
+  return { likedImages, hasMore: likedImages.length };
 };
 
 export const updateCurrentImageIndex = async (
@@ -61,9 +60,20 @@ export const updateCurrentImageIndex = async (
   });
 };
 
+export const removeLikedImage = async (userId: string, imageId: string) => {
+  deleteDoc(doc(db, `users/${userId}/likedImages/${imageId}`));
+};
+
+export const setDislikedImages = async (userId: string, image: any) => {
+  const collectionRef = doc(db, `users/${userId}/dislikedImages`, image.id);
+  setDoc(collectionRef, { ...image, createdAt: serverTimestamp() });
+};
+
 export const updateLikedImages = async (userId: string, image: any) => {
   const collectionRef = doc(db, `users/${userId}/likedImages`, image.id);
-  setDoc(collectionRef, { ...image, createdAt: serverTimestamp() });
+  await setDoc(collectionRef, { ...image, createdAt: serverTimestamp() });
+  const docSnap = await getDoc(collectionRef);
+  return docSnap;
 };
 
 export const fetchRadomImages = async (userId: string) => {

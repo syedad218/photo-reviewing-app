@@ -30,9 +30,8 @@ export interface State {
   likedImages: {
     loading: boolean;
     error: string;
-    data: Array<Image>;
+    data: any;
     hasMore: boolean;
-    lastImageSnapshot: any;
   };
 }
 
@@ -52,7 +51,6 @@ export const initialState = {
     error: null,
     data: [],
     hasMore: true,
-    lastImageSnapshot: null,
   },
 };
 
@@ -74,10 +72,7 @@ const reducer = (state = initialState, action: Action) => {
         draft.likedImages.loading = true;
         break;
       case FETCH_USER_LIKED_IMAGES.SUCCESS:
-        draft.likedImages.data = draft.likedImages.data.concat(
-          action.payload.likedImages
-        );
-        draft.likedImages.lastImageSnapshot = action.payload.lastImageSnapshot;
+        draft.likedImages.data = action.payload.likedImages;
         draft.likedImages.hasMore = action.payload.hasMore;
         draft.likedImages.loading = false;
         break;
