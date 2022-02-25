@@ -53,11 +53,11 @@ const Carousel = ({}) => {
           images.map((image, index) => (
             <div
               style={{ width: "80px", height: "100px" }}
-              key={image.data().id}
+              key={image.id}
               {...(index === images.length - 1 && { ref: lastElementRef })}
             >
               <img
-                src={`${image.data().urls.small}`}
+                src={`${image.urls.small}`}
                 width={80}
                 height={100}
                 alt="liked"

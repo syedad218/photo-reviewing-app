@@ -144,17 +144,15 @@ function* likeImageStart() {
     const imageIndex = likedImages.findIndex((img: any) => img.id === image.id);
     let payload = [...likedImages] ?? [];
 
-    // @ts-ignore
-    const likedImageSnap: any = yield call(updateLikedImages, userId, image);
-
     if (imageIndex === -1) {
-      payload = [likedImageSnap, ...likedImages];
+      payload = [image, ...likedImages];
     } else {
       const existingImage = payload.splice(imageIndex, 1);
-      payload = [likedImageSnap, ...payload];
+      payload = [existingImage[0], ...payload];
     }
-    yield put(likeImage.success({ payload }));
 
+    updateLikedImages(userId, image);
+    yield put(likeImage.success({ payload }));
     if (isLastRandomImage) {
       updateCurrentImageIndex(userId, false);
       yield put(fetchRandomImage.start({ metadata: { apiOnly: true } }));

@@ -59,17 +59,20 @@ export const fetchLikedImages = async (userId: string, lastDoc: any) => {
   const collectionRef = collection(db, `users/${userId}/likedImages`);
   let queryRef;
   if (lastDoc) {
+    const docRef = doc(db, `users/${userId}/likedImages`, lastDoc.id);
+    const lastDocSnap = await getDoc(docRef);
+
     queryRef = query(
       collectionRef,
       orderBy("createdAt", "desc"),
-      startAfter(lastDoc),
+      startAfter(lastDocSnap),
       limit(30)
     );
   } else {
     queryRef = query(collectionRef, orderBy("createdAt", "desc"), limit(30));
   }
   const docsSnapshot = await getDocs(queryRef);
-  const likedImages = docsSnapshot.docs;
+  const likedImages = docsSnapshot.docs.map((doc) => doc.data());
   return { likedImages, hasMore: likedImages.length };
 };
 
@@ -95,9 +98,7 @@ export const setDislikedImages = async (userId: string, image: any) => {
 
 export const updateLikedImages = async (userId: string, image: any) => {
   const collectionRef = doc(db, `users/${userId}/likedImages`, image.id);
-  await setDoc(collectionRef, { ...image, createdAt: serverTimestamp() });
-  const docSnap = await getDoc(collectionRef);
-  return docSnap;
+  setDoc(collectionRef, { ...image, createdAt: serverTimestamp() });
 };
 
 export const fetchRadomImages = async (userId: string) => {

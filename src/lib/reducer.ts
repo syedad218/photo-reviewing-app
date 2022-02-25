@@ -62,6 +62,9 @@ const reducer = (state = initialState, action: Action) => {
         draft.user.id = action.payload;
         draft.authenticated = true;
         break;
+      case FETCH_RANDOM_IMAGE.START:
+        draft.randomImages.loading = true;
+        break;
       case FETCH_RANDOM_IMAGE.SUCCESS:
         draft.randomImages.data = action.payload.images;
         draft.currentImageIndex = action.payload.currentRandomImageIndex || 0;
