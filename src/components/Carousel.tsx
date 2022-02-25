@@ -42,7 +42,7 @@ const Carousel = ({}) => {
     [loading, hasMore, dispatch]
   );
 
-  console.log(hasMore);
+  // console.log(hasMore);
 
   return (
     <>

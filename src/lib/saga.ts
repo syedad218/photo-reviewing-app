@@ -35,6 +35,7 @@ import {
   fetchLikedImages,
   setDislikedImages,
   removeLikedImage,
+  findDislikedImages,
 } from "./firestoreService";
 
 function* authenticateUserStart() {
@@ -74,7 +75,21 @@ function* fetchRandomImageStart(data: any) {
         },
       });
       const { data } = response || {};
-      processedData = iterateImages(data, userId);
+      const imageIds = data?.map((img: any) => img.id) ?? [];
+      // console.log(imageIds);
+      // @ts-ignore
+      const dislikedImageMatches = yield call(
+        findDislikedImages,
+        userId,
+        imageIds
+      );
+      // @ts-ignore
+      console.log("dislikedImageMatches", dislikedImageMatches);
+      const filteredImages = data.filter(
+        (image: any) => !dislikedImageMatches.includes(image.id)
+      );
+      console.log("filteredImages", filteredImages.length);
+      processedData = iterateImages(filteredImages, userId);
     }
     yield put(
       fetchRandomImage.success({
@@ -86,8 +101,8 @@ function* fetchRandomImageStart(data: any) {
       })
     );
   } catch (error) {
-    // yield put(fetchRandomImage.error());
     console.log(error);
+    yield put(fetchRandomImage.error());
   }
 }
 

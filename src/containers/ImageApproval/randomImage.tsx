@@ -10,6 +10,7 @@ const ImageContainer = styled.div`
   padding: 20px;
   border-bottom: 1px solid #ccc;
   overflow: hidden;
+  min-height: 350px;
 `;
 
 interface Props {}

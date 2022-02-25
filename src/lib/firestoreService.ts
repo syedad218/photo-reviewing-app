@@ -14,6 +14,7 @@ import {
   orderBy,
   limit,
   startAfter,
+  where,
 } from "firebase/firestore";
 
 export const login = async () => {
@@ -29,6 +30,29 @@ export const createUserDoc = async (userId: string) => {
   } else {
     setDoc(docRef, { id: userId });
   }
+};
+
+export const findDislikedImages = async (userId: string, imageIds: any) => {
+  const collectionRef = collection(db, `users/${userId}/dislikedImages`);
+  let startIndex = 0;
+  let endIndex = 10;
+  const docsPromises = [];
+  while (endIndex <= imageIds.length) {
+    const batch = imageIds.slice(startIndex, endIndex);
+    const q = query(collectionRef, where("id", "in", batch));
+    docsPromises.push(
+      getDocs(q).then((docSnap) => docSnap.docs.map((doc) => doc.data().id))
+    );
+    startIndex += 10;
+    endIndex += 10;
+    // const querySnapshot = await getDocs(q);
+    // let dislikedImageMatches: any = [];
+    // querySnapshot.forEach((doc) => dislikedImageMatches.push(doc.id));
+  }
+  const docs = await Promise.all(docsPromises);
+  const dislikedImageMatches = docs.reduce((acc, val) => acc.concat(val), []);
+
+  return dislikedImageMatches;
 };
 
 export const fetchLikedImages = async (userId: string, lastDoc: any) => {
