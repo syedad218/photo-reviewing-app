@@ -1,18 +1,12 @@
 import { FC } from "react";
 import { Actions, EmptyImageText } from "./styled";
 import Button from "../../components/Button";
-import { Image } from "../../lib/types";
+import { Props } from "./randomImage";
 import { likeImage, unlikeImage } from "../../lib/actions";
-import { makeSelectIsLoadingRandomImages } from "./selectors";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
-interface Props {
-  image: Image;
-}
-
-const ActionsWrapper: FC<Props> = ({ image }) => {
+const ActionsWrapper: FC<Props> = ({ image, isLoadingRandomImages }) => {
   const dispatch = useDispatch();
-  const isLoadingRandomImages = useSelector(makeSelectIsLoadingRandomImages);
 
   const handleLike = () => {
     if (!isLoadingRandomImages) dispatch(likeImage.start());
@@ -22,7 +16,7 @@ const ActionsWrapper: FC<Props> = ({ image }) => {
     if (!isLoadingRandomImages) dispatch(unlikeImage.start());
   };
 
-  if (!image) {
+  if (!image && !isLoadingRandomImages) {
     return (
       <EmptyImageText>
         <span>

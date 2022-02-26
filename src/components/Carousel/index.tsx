@@ -9,7 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import throttle from "lodash/throttle";
 import { Image } from "../../lib/types";
 import { checkRightScroll, checkLeftScroll, checkIfLastElementVisible } from "./utils";
-import { LeftNavArrow, RightNavArrow, Loader, ImageContainer, EmptyImageCard } from "./elements";
+import { LeftNavArrow, RightNavArrow, ImageContainer, EmptyImageCard } from "./elements";
 
 interface Props {
   image: Image;
@@ -67,7 +67,6 @@ const Carousel: FC<Props> = ({ image }) => {
       <LeftNavArrow leftNav={leftNav} scrollContainerRef={scrollContainerRef.current} />
       <RightNavArrow rightNav={rightNav} scrollContainerRef={scrollContainerRef.current} />
       <Container className="image-container" ref={scrollContainerRef} onScroll={handleScroll}>
-        <Loader loading={loading} />
         {renderContent()}
       </Container>
     </>

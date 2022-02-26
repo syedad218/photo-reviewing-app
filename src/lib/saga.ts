@@ -51,7 +51,7 @@ function* authenticateUserStart() {
 function* fetchRandomImageStart(data: any) {
   try {
     const { metadata } = data || {};
-    const { apiOnly } = metadata || {};
+    const { apiOnly, initialCheck } = metadata || {};
     const userId: string = yield select(makeSelectUserId);
     console.log(userId);
     // ts-ignore TODO: fix this
@@ -61,7 +61,8 @@ function* fetchRandomImageStart(data: any) {
     }
     // @ts-ignore
     let processedData = imagesonFirebase?.randomImages ?? [];
-    if (processedData.length === 0) {
+
+    if (processedData.length === 0 && !initialCheck) {
       const response: AxiosResponse = yield call(request, {
         method: "get",
         endpoint: "photos/random",

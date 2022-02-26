@@ -1,6 +1,5 @@
 import { Dispatch, FC, forwardRef } from "react";
 import { handleRightNavigation, handleLeftNavigation } from "./utils";
-import PropagateLoader from "react-spinners/PropagateLoader";
 import { Image } from "../../lib/types";
 import { fetchRandomImage } from "../../lib/actions";
 
@@ -31,15 +30,6 @@ export const RightNavArrow: FC<Props> = ({ rightNav, scrollContainerRef }) => {
     >
       arrow_forward_ios
     </span>
-  );
-};
-
-export const Loader: FC<{ loading: boolean }> = ({ loading }) => {
-  if (!loading) return null;
-  return (
-    <div className="image-loading-spinner">
-      <PropagateLoader color={"cornflowerblue"} loading={true} size={10} />
-    </div>
   );
 };
 
