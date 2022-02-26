@@ -165,7 +165,7 @@ function* unlikeImageStart() {
     const imageIndex = likedImages.findIndex((img: any) => img.id === image.id);
     const payload = [...likedImages];
     if (imageIndex !== -1) {
-      const existingImage = payload.splice(imageIndex, 1);
+      payload.splice(imageIndex, 1);
       yield put(
         fetchUserLikedImages.success({
           payload: { likedImages: payload, hasMore },
