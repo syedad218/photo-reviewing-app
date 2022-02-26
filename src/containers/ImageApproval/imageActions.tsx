@@ -16,7 +16,7 @@ const ActionsWrapper: FC<Props> = ({ image, isLoadingRandomImages }) => {
     if (!isLoadingRandomImages) dispatch(unlikeImage.start());
   };
 
-  if (!image && !isLoadingRandomImages) {
+  if (!image) {
     return (
       <EmptyImageText>
         <span>
