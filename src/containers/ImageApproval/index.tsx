@@ -34,7 +34,7 @@ const ImageApproval: FC<Props> = () => {
 
   return (
     <CardContainer>
-      <p className="card-header">IMAGE APPROVAL APPLICATION</p>
+      <p className="card-header">image approval application</p>
       <div className="carousel-container">
         <Carousel />
       </div>

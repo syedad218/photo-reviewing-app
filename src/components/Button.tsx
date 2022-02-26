@@ -9,7 +9,7 @@ interface Props {
 const StyledButton = styled.button<Props>`
   background-color: ${(p) => p.theme.colors.palette[p.appearance]};
   color: white;
-  padding: 0.6rem 3.5rem;
+  padding: 0.5rem 3rem;
   border-radius: 1rem;
   text-align: center;
   cursor: pointer;
