@@ -15,7 +15,7 @@ const AppContainer = () => {
 
   if (isAuthenticated) return <ImageApproval />;
 
-  return <PropagateLoader color={"white"} loading={true} size={10} />;
+  return <PropagateLoader color={"white"} loading={true} size={15} />;
 };
 
 export default AppContainer;
