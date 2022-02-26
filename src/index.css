@@ -5,11 +5,16 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0c55e9;
+  background-color: #2167f2;
 }
 
 .App {
-  padding: 2rem;
+  height: 100vh;
+  margin: auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2rem;
 }
 
 code {

@@ -2,41 +2,14 @@ import {
   AUTHENTICATE_USER,
   FETCH_RANDOM_IMAGE,
   FETCH_USER_LIKED_IMAGES,
-  FETCH_USER_PROFILE,
   LIKE_IMAGE,
   UNLIKE_IMAGE,
 } from "./actionTypes";
 import produce from "immer";
 import { Action } from "./actions";
+import { State } from "./types";
 
-interface Image {
-  id: string;
-  urls: {
-    small: string;
-    regular: string;
-  };
-}
-export interface State {
-  user: {
-    id: string;
-    username: string;
-  };
-  randomImages: {
-    loading: boolean;
-    error: string;
-    data: Array<Image>;
-  };
-  currentImageIndex: number;
-  likedImages: {
-    loading: boolean;
-    error: string;
-    data: any;
-    hasMore: boolean;
-  };
-}
-
-export const initialState = {
-  authenticated: false,
+export const initialState: State = {
   user: {
     id: null,
   },
@@ -58,12 +31,11 @@ const reducer = (state = initialState, action: Action) => {
   return produce(state, (draft) => {
     switch (action.type) {
       case AUTHENTICATE_USER.SUCCESS:
-        // TODO: handle success
         draft.user.id = action.payload;
-        draft.authenticated = true;
         break;
       case FETCH_RANDOM_IMAGE.START:
         draft.randomImages.loading = true;
+        draft.randomImages.error = null;
         break;
       case FETCH_RANDOM_IMAGE.SUCCESS:
         draft.randomImages.data = action.payload.images;
@@ -83,7 +55,6 @@ const reducer = (state = initialState, action: Action) => {
         draft.likedImages.loading = false;
         break;
       case LIKE_IMAGE.SUCCESS:
-        // @ts-ignore
         draft.likedImages.data = action.payload;
         draft.currentImageIndex = draft.currentImageIndex + 1;
         break;

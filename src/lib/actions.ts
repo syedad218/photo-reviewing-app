@@ -1,6 +1,5 @@
 import {
   AUTHENTICATE_USER,
-  FETCH_USER_PROFILE,
   FETCH_USER_LIKED_IMAGES,
   FETCH_RANDOM_IMAGE,
   LIKE_IMAGE,
@@ -9,7 +8,7 @@ import {
 
 export interface Action {
   type: string;
-  payload: any;
+  payload?: any;
 }
 
 export interface ActionType {
@@ -31,7 +30,6 @@ const createAction = (actionBaseType: ActionType) => ({
 });
 
 export const authenticateUser = createAction(AUTHENTICATE_USER);
-export const fetchUserProfile = createAction(FETCH_USER_PROFILE);
 export const fetchUserLikedImages = createAction(FETCH_USER_LIKED_IMAGES);
 export const fetchRandomImage = createAction(FETCH_RANDOM_IMAGE);
 export const likeImage = createAction(LIKE_IMAGE);

@@ -5,7 +5,6 @@ const defineActionTypes = (actionBaseType: string) => ({
 });
 
 export const AUTHENTICATE_USER = defineActionTypes("AUTHENTICATE_USER");
-export const FETCH_USER_PROFILE = defineActionTypes("FETCH_USER_PROFILE");
 export const FETCH_USER_LIKED_IMAGES = defineActionTypes(
   "FETCH_USER_LIKED_IMAGES"
 );

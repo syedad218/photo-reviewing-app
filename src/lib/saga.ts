@@ -2,7 +2,6 @@ import { AxiosResponse } from "axios";
 import { put, takeLatest, call, select } from "redux-saga/effects";
 import {
   authenticateUser,
-  fetchUserProfile,
   fetchUserLikedImages,
   fetchRandomImage,
   likeImage,
@@ -46,7 +45,6 @@ function* authenticateUserStart() {
   } catch (error) {
     console.log("error in authentication", error);
     yield put(authenticateUser.error());
-    // do nothing
   }
 }
 

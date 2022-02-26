@@ -14,9 +14,10 @@ import { makeSelectIsLoadingRandomImages } from "./selectors";
 
 interface Props {}
 
-const ImageApproval: FC<Props> = ({}) => {
+const ImageApproval: FC<Props> = () => {
   const dispatch = useDispatch();
   const isLoadingRandomImages = useSelector(makeSelectIsLoadingRandomImages);
+
   useEffect(() => {
     dispatch(fetchUserLikedImages.start());
     dispatch(fetchRandomImage.start());
@@ -40,8 +41,12 @@ const ImageApproval: FC<Props> = ({}) => {
       <RandomImage />
       <div className="card-footer">
         <Actions>
-          <Button onClick={handleDislike}>Dislike</Button>
-          <Button onClick={handleLike}>Like</Button>
+          <Button appearance="secondary" onClick={handleDislike}>
+            <span className="material-icons">thumb_down</span>
+          </Button>
+          <Button appearance="primary" onClick={handleLike}>
+            <span className="material-icons">thumb_up</span>
+          </Button>
         </Actions>
       </div>
     </CardContainer>

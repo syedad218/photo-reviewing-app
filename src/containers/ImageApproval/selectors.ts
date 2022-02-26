@@ -1,4 +1,4 @@
-import { State } from "../../lib/reducer";
+import { State } from "../../lib/types";
 
 export const makeSelectUserId = (state: State) => state.user.id;
 export const makeSelectImageId = (state: State) =>
