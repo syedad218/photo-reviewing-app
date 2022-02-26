@@ -2,7 +2,7 @@ const theme = {
   colors: {
     palette: {
       primary: "#0c55e9",
-      secondary: "dimgrey",
+      secondary: "rgba(0,0,0, 0.75)",
     },
   },
 };
