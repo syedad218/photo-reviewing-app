@@ -36,6 +36,7 @@ import {
   removeLikedImage,
   findDislikedImages,
 } from "./firestoreService";
+import { Image } from "./types";
 
 function* authenticateUserStart() {
   try {
@@ -53,16 +54,13 @@ function* fetchRandomImageStart(data: any) {
     const { metadata } = data || {};
     const { apiOnly, initialCheck } = metadata || {};
     const userId: string = yield select(makeSelectUserId);
-    console.log(userId);
-    // ts-ignore TODO: fix this
-    let imagesonFirebase = {};
+    let imagesonFirebase = { randomImages: null, currentRandomImageIndex: null };
     if (!apiOnly) {
       imagesonFirebase = yield call(fetchRadomImages, userId);
     }
-    // @ts-ignore
-    let processedData = imagesonFirebase?.randomImages ?? [];
+    let processedData: Array<Image> | [] = imagesonFirebase?.randomImages ?? [];
 
-    if (processedData.length === 0 && !initialCheck) {
+    if (processedData?.length === 0 && !initialCheck) {
       const response: AxiosResponse = yield call(request, {
         method: "get",
         endpoint: "photos/random",
@@ -74,27 +72,31 @@ function* fetchRandomImageStart(data: any) {
         },
       });
       const { data } = response || {};
-      const imageIds = data?.map((img: any) => img.id) ?? [];
-      // console.log(imageIds);
-      // @ts-ignore
-      const dislikedImageMatches = yield call(findDislikedImages, userId, imageIds);
-      // @ts-ignore
-      console.log("dislikedImageMatches", dislikedImageMatches);
-      const filteredImages = data.filter((image: any) => !dislikedImageMatches.includes(image.id));
-      console.log("filteredImages", filteredImages.length);
+      const imageIds = data?.map((img: Image) => img.id) ?? [];
+
+      const dislikedImageMatches: Array<string> | [] = yield call(
+        findDislikedImages,
+        userId,
+        imageIds
+      );
+
+      const filteredImages: Array<Image> | [] = data?.filter(
+        // @ts-ignore
+        (image: Image) => !dislikedImageMatches.includes(image.id)
+      );
+
       processedData = iterateImages(filteredImages, userId);
     }
     yield put(
       fetchRandomImage.success({
         payload: {
           images: processedData,
-          // @ts-ignore
           currentRandomImageIndex: imagesonFirebase?.currentRandomImageIndex,
         },
       })
     );
   } catch (error) {
-    console.log(error);
+    console.log("error in fetchRandomImage", error);
     yield put(fetchRandomImage.error());
   }
 }
@@ -102,12 +104,9 @@ function* fetchRandomImageStart(data: any) {
 function* fetchUserLikedImagesStart(data: any) {
   try {
     const userId: string = yield select(makeSelectUserId);
-    // @ts-ignore
-    const lastDoc: any = yield select(makeSelectLastFetchedLikedImage);
-    // @ts-ignore
+    const lastDoc: Image = yield select(makeSelectLastFetchedLikedImage);
     const { likedImages, hasMore } = yield fetchLikedImages(userId, lastDoc);
-    // @ts-ignore
-    const existingLikedImages: any = yield select(makeSelectLikedImages);
+    const existingLikedImages: Image[] = yield select(makeSelectLikedImages);
     yield put(
       fetchUserLikedImages.success({
         payload: {
@@ -117,6 +116,7 @@ function* fetchUserLikedImagesStart(data: any) {
       })
     );
   } catch (error) {
+    console.log("error in fetchUserLikedImages", error);
     yield put(fetchUserLikedImages.error());
   }
 }
@@ -124,16 +124,11 @@ function* fetchUserLikedImagesStart(data: any) {
 function* likeImageStart() {
   try {
     const userId: string = yield select(makeSelectUserId);
-    // @ts-ignore
-    const image: any = yield select(makeSelectCurrentImage);
+    const image: Image = yield select(makeSelectCurrentImage);
     const currentImageIndex: number = yield select(makeSelectCurrentImageIndex);
-    // @ts-ignore
-    const randomImages: any = yield select(makeSelectRandomImages);
+    const randomImages: Image[] = yield select(makeSelectRandomImages);
     const isLastRandomImage = currentImageIndex === randomImages.length - 1;
-    // @ts-ignore
-    const likedImages: any = yield select(makeSelectLikedImages);
-
-    // incorrect because i'm only checking locally if it exists or not???? :thinking_face:
+    const likedImages: Image[] = yield select(makeSelectLikedImages);
     const imageIndex = likedImages.findIndex((img: any) => img.id === image.id);
     let payload = [...likedImages] ?? [];
 
@@ -153,7 +148,7 @@ function* likeImageStart() {
       updateCurrentImageIndex(userId);
     }
   } catch (error) {
-    console.log(error);
+    console.log("error in likeImage", error);
     yield put(likeImage.error());
   }
 }
@@ -161,16 +156,12 @@ function* likeImageStart() {
 function* unlikeImageStart() {
   try {
     const userId: string = yield select(makeSelectUserId);
-    // @ts-ignore
-    const image: any = yield select(makeSelectCurrentImage);
+    const image: Image = yield select(makeSelectCurrentImage);
     const currentImageIndex: number = yield select(makeSelectCurrentImageIndex);
-    // @ts-ignore
-    const randomImages: any = yield select(makeSelectRandomImages);
+    const randomImages: Image[] = yield select(makeSelectRandomImages);
     const isLastRandomImage = currentImageIndex === randomImages.length - 1;
-    // @ts-ignore
-    const likedImages: any = yield select(makeSelectLikedImages);
+    const likedImages: Image[] = yield select(makeSelectLikedImages);
     const hasMore: boolean = yield select(makeSelectHasMoreLikedImages);
-    // incorrect because i'm only checking locally if it exists or not???? :thinking_face:
     const imageIndex = likedImages.findIndex((img: any) => img.id === image.id);
     const payload = [...likedImages];
     if (imageIndex !== -1) {
@@ -191,7 +182,7 @@ function* unlikeImageStart() {
     setDislikedImages(userId, image);
     yield put(unlikeImage.success());
   } catch (error) {
-    console.log(error);
+    console.log("error in dislikeImage", error);
     yield put(unlikeImage.error());
   }
 }

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { makeSelectUserId } from "../ImageApproval/selectors";
 import { authenticateUser } from "../../lib/actions";
 import ImageApproval from "../ImageApproval";
-import PropagateLoader from "react-spinners/PropagateLoader";
+import ScaleLoader from "react-spinners/ScaleLoader";
 
 const AppContainer = () => {
   const dispatch = useDispatch();
@@ -15,7 +15,7 @@ const AppContainer = () => {
 
   if (isAuthenticated) return <ImageApproval />;
 
-  return <PropagateLoader color={"white"} loading={true} size={15} />;
+  return <ScaleLoader color={"white"} loading={true} height={35} width={6} />;
 };
 
 export default AppContainer;

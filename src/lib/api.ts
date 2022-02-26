@@ -1,6 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
-export const BASE_URL = "https://unsplash.com/";
 export const API_URL = "https://api.unsplash.com/";
 
 interface RequestConfig {
@@ -13,10 +12,9 @@ interface RequestConfig {
 export default async function request({
   method,
   endpoint,
-  authEndpoint,
   config,
 }: RequestConfig): Promise<AxiosResponse<any, any> | never> {
-  const url = `${authEndpoint ? BASE_URL : API_URL}${endpoint}`;
+  const url = `${API_URL}${endpoint}`;
   try {
     const response: AxiosResponse = await axios({
       method,
