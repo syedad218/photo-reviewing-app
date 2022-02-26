@@ -76,16 +76,10 @@ function* fetchRandomImageStart(data: any) {
       const imageIds = data?.map((img: any) => img.id) ?? [];
       // console.log(imageIds);
       // @ts-ignore
-      const dislikedImageMatches = yield call(
-        findDislikedImages,
-        userId,
-        imageIds
-      );
+      const dislikedImageMatches = yield call(findDislikedImages, userId, imageIds);
       // @ts-ignore
       console.log("dislikedImageMatches", dislikedImageMatches);
-      const filteredImages = data.filter(
-        (image: any) => !dislikedImageMatches.includes(image.id)
-      );
+      const filteredImages = data.filter((image: any) => !dislikedImageMatches.includes(image.id));
       console.log("filteredImages", filteredImages.length);
       processedData = iterateImages(filteredImages, userId);
     }

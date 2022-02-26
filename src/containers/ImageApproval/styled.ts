@@ -42,3 +42,11 @@ export const Actions = styled.div`
   column-gap: 2rem;
   overflow: hidden;
 `;
+
+export const EmptyImageText = styled.p`
+  color: darkgrey;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1.2rem 1rem;
+  text-align: center;
+`;

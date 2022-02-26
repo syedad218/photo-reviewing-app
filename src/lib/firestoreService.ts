@@ -40,9 +40,7 @@ export const findDislikedImages = async (userId: string, imageIds: any) => {
   while (endIndex <= imageIds.length) {
     const batch = imageIds.slice(startIndex, endIndex);
     const q = query(collectionRef, where("id", "in", batch));
-    docsPromises.push(
-      getDocs(q).then((docSnap) => docSnap.docs.map((doc) => doc.data().id))
-    );
+    docsPromises.push(getDocs(q).then((docSnap) => docSnap.docs.map((doc) => doc.data().id)));
     startIndex += 10;
     endIndex += 10;
     // const querySnapshot = await getDocs(q);
@@ -76,10 +74,7 @@ export const fetchLikedImages = async (userId: string, lastDoc: any) => {
   return { likedImages, hasMore: likedImages.length };
 };
 
-export const updateCurrentImageIndex = async (
-  userId: string,
-  isIncrement = true
-) => {
+export const updateCurrentImageIndex = async (userId: string, isIncrement = true) => {
   const userRef = doc(db, "users", userId);
   // Atomically increment the population of the city by 1.
   updateDoc(userRef, {

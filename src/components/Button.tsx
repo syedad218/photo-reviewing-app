@@ -1,4 +1,4 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import styled from "styled-components";
 
 interface Props {
@@ -21,7 +21,13 @@ const StyledButton = styled.button<Props>`
   }
 `;
 
-const Button: FC<Props> = ({ children, onClick, appearance = "primary" }) => {
+const Button: FC<
+  React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > &
+    Props
+> = ({ children, onClick, appearance = "primary" }) => {
   return (
     <StyledButton appearance={appearance} onClick={onClick}>
       {children}

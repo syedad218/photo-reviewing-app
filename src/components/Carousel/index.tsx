@@ -5,22 +5,17 @@ import {
   makeSelectIsUserLikedImageLoading,
   makeSelectHasMoreLikedImages,
 } from "../../containers/ImageApproval/selectors";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { fetchUserLikedImages } from "../../lib/actions";
+import { useSelector, useDispatch } from "react-redux";
 import throttle from "lodash/throttle";
 import { Image } from "../../lib/types";
-import { checkRightScroll, checkLeftScroll } from "./utils";
-import {
-  LeftNavArrow,
-  RightNavArrow,
-  Loader,
-  ImageContainer,
-} from "./elements";
+import { checkRightScroll, checkLeftScroll, checkIfLastElementVisible } from "./utils";
+import { LeftNavArrow, RightNavArrow, Loader, ImageContainer, EmptyImageCard } from "./elements";
 
-interface Props {}
+interface Props {
+  image: Image;
+}
 
-const Carousel: FC<Props> = () => {
+const Carousel: FC<Props> = ({ image }) => {
   const images: Array<Image> = useSelector(makeSelectLikedImages);
   const loading: boolean = useSelector(makeSelectIsUserLikedImageLoading);
   const hasMore: boolean = useSelector(makeSelectHasMoreLikedImages);
@@ -34,14 +29,7 @@ const Carousel: FC<Props> = () => {
 
   const lastElementRef = useCallback(
     (node) => {
-      if (loading) return;
-      if (observer.current) observer?.current?.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          dispatch(fetchUserLikedImages.start());
-        }
-      });
-      if (node) observer.current.observe(node);
+      checkIfLastElementVisible(node, loading, hasMore, dispatch, observer);
     },
     [loading, hasMore, dispatch]
   );
@@ -59,31 +47,28 @@ const Carousel: FC<Props> = () => {
     if (rightNav !== isScrollRight) setRightNav(isScrollRight);
   }, 1000);
 
+  const renderContent = () => {
+    if (!images || images.length === 0)
+      return <EmptyImageCard loading={loading} dispatch={dispatch} image={image} />;
+
+    return images.map((image, index) => (
+      <ImageContainer
+        isLast={index === images.length - 1}
+        image={image}
+        ref={lastElementRef}
+        key={image.id}
+      />
+    ));
+  };
+
   return (
     <>
       <p>approved images ({images?.length})</p>
-      <LeftNavArrow
-        leftNav={leftNav}
-        scrollContainerRef={scrollContainerRef.current}
-      />
-      <RightNavArrow
-        rightNav={rightNav}
-        scrollContainerRef={scrollContainerRef.current}
-      />
-      <Container
-        className="image-container"
-        ref={scrollContainerRef}
-        onScroll={handleScroll}
-      >
+      <LeftNavArrow leftNav={leftNav} scrollContainerRef={scrollContainerRef.current} />
+      <RightNavArrow rightNav={rightNav} scrollContainerRef={scrollContainerRef.current} />
+      <Container className="image-container" ref={scrollContainerRef} onScroll={handleScroll}>
         <Loader loading={loading} />
-        {images?.length > 0 &&
-          images.map((image, index) => (
-            <ImageContainer
-              isLast={index === images.length - 1}
-              image={image}
-              ref={lastElementRef}
-            />
-          ))}
+        {renderContent()}
       </Container>
     </>
   );
