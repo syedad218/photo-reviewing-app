@@ -1,12 +1,20 @@
 import React, { FC } from "react";
 import styled from "styled-components";
 
-interface Props {
-  onClick: () => void;
+interface Props
+  extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {
+  onClick?: () => void;
+  appearance?: "primary" | "secondary";
+}
+
+interface StyledProps extends Props {
   appearance: "primary" | "secondary";
 }
 
-const StyledButton = styled.button<Props>`
+const StyledButton = styled.button<StyledProps>`
   background-color: ${(p) => p.theme.colors.palette[p.appearance]};
   color: white;
   padding: 0.5rem 3rem;
@@ -21,15 +29,9 @@ const StyledButton = styled.button<Props>`
   }
 `;
 
-const Button: FC<
-  React.DetailedHTMLProps<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  > &
-    Props
-> = ({ children, onClick, appearance = "primary" }) => {
+const Button: FC<Props> = ({ children, onClick, appearance = "secondary" }) => {
   return (
-    <StyledButton appearance={appearance} onClick={onClick}>
+    <StyledButton appearance={appearance} onClick={onClick} data-testid="action-button">
       {children}
     </StyledButton>
   );

@@ -51,6 +51,7 @@
     ]
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.179"
+    "@types/lodash": "^4.14.179",
+    "jest-styled-components": "^7.0.8"
   }
 }
