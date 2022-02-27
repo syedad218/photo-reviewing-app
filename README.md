@@ -1,4 +1,4 @@
-# Photo Reviewing App
+# Photo Reviewing App :react: :firebase: :typescript: :redux: :styled-components:
 
 - Install Node >= 12.x
 - Install dependencies using `npm install`
@@ -65,7 +65,7 @@
 - Lodash [https://lodash.com/](https://lodash.com/)
 - Axios [https://axios-http.com/docs/intro](https://axios-http.com/docs/intro)
 
-## App Link:-
+## App Link :link:
 
 - [https://syedad218.github.io/photo-reviewing-app/](https://syedad218.github.io/photo-reviewing-app/)
 
