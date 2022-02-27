@@ -49,18 +49,138 @@
 
 > Random photos is an Array of object with same schema as liked photos/ disliked photos. Random photos are stored 30 at a time in the firestore database. when currentRandomImageIndex is equal to 30, the next 30 photos are fetched from the unsplash API and stored in the db (to optimise API calls).
 
+> App uses anonymous authentication for authentication/creation of user.
+
 ## Technologies Used :fire:
 
 - React.js [https://reactjs.org/](https://reactjs.org/)
 - TypeScript [https://www.typescriptlang.org/](https://www.typescriptlang.org/)
 - Redux [https://redux.js.org/](https://redux.js.org/)
-- Firebase [https://firebase.google.com/](https://firebase.google.com/)
-- Unsplash API [https://unsplash.com/documentation](https://unsplash.com/documentation)
-- Firestore [https://firebase.google.com/docs/firestore/](https://firebase.google.com/docs/firestore/)
-- Styled Components [https://www.styled-components.com/](https://www.styled-components.com/)
 - Redux-saga [https://redux-saga.js.org/](https://redux-saga.js.org/)
 - Immer [https://immerjs.github.io/immer/](https://immerjs.github.io/immer/)
+- Firebase [https://firebase.google.com/](https://firebase.google.com/)
+- Firestore [https://firebase.google.com/docs/firestore/](https://firebase.google.com/docs/firestore/)
+- Unsplash API [https://unsplash.com/documentation](https://unsplash.com/documentation)
+- Styled Components [https://www.styled-components.com/](https://www.styled-components.com/)
 - Lodash [https://lodash.com/](https://lodash.com/)
 - Axios [https://axios-http.com/docs/intro](https://axios-http.com/docs/intro)
 
-### App Link:- [https://syedad218.github.io/photo-reviewing-app/](https://syedad218.github.io/photo-reviewing-app/)
+## App Link:-
+
+- [https://syedad218.github.io/photo-reviewing-app/](https://syedad218.github.io/photo-reviewing-app/)
+
+## Notes
+
+- function used for filtering random photos fetched from external Unsplash API to avoid displaying previously disliked photos.
+
+```typescript
+const findDislikedImages = async (
+  userId: string,
+  imageIds: Array<string>
+): Promise<Array<string> | []> => {
+  const collectionRef = collection(db, `users/${userId}/dislikedImages`);
+  let startIndex = 0;
+  let endIndex = 10;
+  const docsPromises = [];
+  while (endIndex <= imageIds.length) {
+    const batch = imageIds.slice(startIndex, endIndex);
+    const q = query(collectionRef, where("id", "in", batch));
+    docsPromises.push(
+      getDocs(q)
+        .then((docSnap) => docSnap.docs.map((doc) => doc.data().id))
+        .catch((err) => err.toString())
+    );
+    startIndex += 10;
+    endIndex += 10;
+  }
+  const docs = await Promise.all(docsPromises);
+  const dislikedImageMatches = docs.reduce((acc, val) => acc.concat(val), []);
+  return dislikedImageMatches;
+};
+```
+
+> The "in" operator limits the query to be used for only an array with maximum 10 items, therefore the query is executed in batches of 10 in order to be used for all 30 images fetched from the Unsplash API.
+
+- query used for fetching liked photos from the firestore database ordered by the liked time(most recent first) limited to 30 at a time.
+
+```typescript
+const collectionRef = collection(db, `users/${userId}/likedImages`);
+const docRef = doc(db, `users/${userId}/likedImages`, lastDoc.id);
+const lastDocSnap = await getDoc(docRef);
+queryRef = query(collectionRef, orderBy("createdAt", "desc"), startAfter(lastDocSnap), limit(30));
+const docsSnapshot = await getDocs(queryRef);
+const likedImages = docsSnapshot.docs.map((doc) => doc.data());
+```
+
+- API call for fetching random images in batches of 30 from unsplash API
+
+```typescript
+const response: AxiosResponse = yield call(request, {
+  method: "get",
+  endpoint: "photos/random",
+  config: {
+    params: {
+      count: 30,
+      client_id: $UNSPLASH_API_KEY,
+    },
+  },
+});
+```
+
+- Reducer InitialState Schema
+
+```typescript
+interface Image {
+  id: string;
+  urls: {
+    small: string;
+    regular: string;
+  };
+}
+
+interface State {
+  user: {
+    id: string;
+  };
+  randomImages: {
+    loading: boolean;
+    error: string | null;
+    data: Array<Image>;
+  };
+  currentImageIndex: number;
+  likedImages: {
+    loading: boolean;
+    error: string | null;
+    data: Array<Image>;
+    hasMore: boolean;
+  };
+}
+```
+
+- Scroll listener using IntersectionObserver and callback ref for fetching next set of liked images from the firestore database.
+
+```typescript
+const lastElementRef = useCallback(
+  (node) => {
+    checkIfLastElementVisible(node, loading, hasMore, dispatch, observer);
+  },
+  [loading, hasMore, dispatch]
+);
+
+const checkIfLastElementVisible = (
+  node: HTMLDivElement | null,
+  loading: boolean,
+  hasMore: boolean,
+  dispatch: Dispatch<any>,
+  observer: React.MutableRefObject<IntersectionObserver | null>
+) => {
+  if (loading) return;
+  if (observer?.current) observer.current?.disconnect();
+  observer.current = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && hasMore) {
+      dispatch(fetchUserLikedImages.start());
+    }
+  });
+  if (node) observer.current?.observe(node);
+};
+```

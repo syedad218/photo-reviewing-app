@@ -18,7 +18,7 @@ export interface State {
   likedImages: {
     loading: boolean;
     error: string | null;
-    data: any;
+    data: Array<Image>;
     hasMore: boolean;
   };
 }
