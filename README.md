@@ -30,6 +30,8 @@
 - If the user disliked an already liked photo, the photo is removed from the liked photos for the user.
 - If the user liked an already liked photo, the photo is moved to the top of the liked photos slider section with updated liked time.
 
+> App uses anonymous authentication for authentication/creation of user. [Anonymous Authentication using Firebase](https://firebase.google.com/docs/auth/web/anonymous-auth)
+
 ## Database Structure
 
 > Collection and Document structure for the app in firestore.
@@ -56,7 +58,7 @@
 
 > Random photos is an Array of object with same schema as liked photos/ disliked photos. Random photos are stored 30 at a time in the firestore database. when currentRandomImageIndex is equal to 30, the next 30 photos are fetched from the unsplash API and stored in the db (to optimise API calls).
 
-> App uses anonymous authentication for authentication/creation of user.
+> Subcollection are reference stored in a document, this is done to structure data hierarchically, making data easier to read and write.
 
 ## Technologies Used :fire:
 
