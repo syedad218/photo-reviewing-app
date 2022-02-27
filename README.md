@@ -1,4 +1,4 @@
-# Photo Reviewing App &nbsp; <img src="./docs/react.png" width="24" height="24">&nbsp; <img src="./docs/firebase.png" width="24" height="24"> &nbsp;<img src="./docs/redux.png" width="24" height="24"> &nbsp;<img src="./docs/typescript.png" width="24" height="24"> &nbsp;<img src="./docs/unsplash.png" width="24" height="24">
+# Photo Reviewing App &nbsp; <img src="./docs/react.png" width="26" height="24">&nbsp; <img src="./docs/firebase.png" width="26" height="24"> &nbsp;<img src="./docs/redux.png" width="26" height="24"> &nbsp;<img src="./docs/typescript.png" width="26" height="24"> &nbsp;<img src="./docs/unsplash.png" width="26" height="24">
 
 - Install Node >= 12.x
 - Install dependencies using `npm install`
@@ -76,7 +76,7 @@
 
 - [https://syedad218.github.io/photo-reviewing-app/](https://syedad218.github.io/photo-reviewing-app/)
 
-## Notes :notes:
+## Notes :pushpin:
 
 - function used for filtering random photos fetched from external Unsplash API to avoid displaying previously disliked photos.
 
