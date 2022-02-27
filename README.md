@@ -51,7 +51,7 @@
             |            ├── photo_id               # String
             |            └── photo_url              # String
             ├── random_photos                       # Array [30]
-            ├── currentRandomImageIndex             # Number
+            ├── currentRandomImageIndex             # Number (0-29)
         ...
 
 > Random photos is an Array of object with same schema as liked photos/ disliked photos. Random photos are stored 30 at a time in the firestore database. when currentRandomImageIndex is equal to 30, the next 30 photos are fetched from the unsplash API and stored in the db (to optimise API calls).
