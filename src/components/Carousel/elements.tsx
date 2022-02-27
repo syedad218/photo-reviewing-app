@@ -2,11 +2,13 @@ import { Dispatch, FC, forwardRef } from "react";
 import { handleRightNavigation, handleLeftNavigation } from "./utils";
 import { Image } from "../../lib/types";
 import { fetchRandomImage } from "../../lib/actions";
+import ClipLoader from "react-spinners/ClipLoader";
 
 interface Props {
   leftNav?: boolean;
   rightNav?: boolean;
   scrollContainerRef: HTMLDivElement | null;
+  loading?: boolean;
 }
 
 export const LeftNavArrow: FC<Props> = ({ leftNav, scrollContainerRef }) => {
@@ -21,8 +23,14 @@ export const LeftNavArrow: FC<Props> = ({ leftNav, scrollContainerRef }) => {
   );
 };
 
-export const RightNavArrow: FC<Props> = ({ rightNav, scrollContainerRef }) => {
-  if (!rightNav) return null;
+export const RightNavArrow: FC<Props> = ({ rightNav, scrollContainerRef, loading }) => {
+  if (loading) {
+    return (
+      <span className="right-navigation">
+        <ClipLoader size={15} color={"#0c55e9"} />
+      </span>
+    );
+  } else if (!rightNav) return null;
   return (
     <span
       className="material-icons right-navigation"

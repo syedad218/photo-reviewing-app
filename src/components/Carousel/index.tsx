@@ -65,7 +65,11 @@ const Carousel: FC<Props> = ({ image }) => {
     <>
       <p>approved images ({images?.length})</p>
       <LeftNavArrow leftNav={leftNav} scrollContainerRef={scrollContainerRef.current} />
-      <RightNavArrow rightNav={rightNav} scrollContainerRef={scrollContainerRef.current} />
+      <RightNavArrow
+        rightNav={rightNav}
+        scrollContainerRef={scrollContainerRef.current}
+        loading={loading}
+      />
       <Container className="image-container" ref={scrollContainerRef} onScroll={handleScroll}>
         {renderContent()}
       </Container>
