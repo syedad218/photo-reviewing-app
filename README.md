@@ -1,4 +1,4 @@
-# Photo Reviewing App :react: :firebase: :typescript: :redux: :styled-components:
+# Photo Reviewing App &nbsp; <img src="./docs/react.png" width="18" height="16">&nbsp; <img src="./docs/firebase.png" width="18" height="16"> &nbsp;<img src="./docs/redux.png" width="18" height="16"> &nbsp;<img src="./docs/typescript.png" width="18" height="16"> &nbsp;<img src="./docs/unsplash.png" width="18" height="16">
 
 - Install Node >= 12.x
 - Install dependencies using `npm install`
@@ -69,7 +69,7 @@
 
 - [https://syedad218.github.io/photo-reviewing-app/](https://syedad218.github.io/photo-reviewing-app/)
 
-## Notes
+## Notes :code:
 
 - function used for filtering random photos fetched from external Unsplash API to avoid displaying previously disliked photos.
 
