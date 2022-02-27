@@ -35,17 +35,24 @@
 > Collection and Document structure for the app in firestore.
 
     .
-    ├── Users                            # Collection
-    │   ├── user_id                      # String
-    │   │   liked_photos                 # Subcollection
-    │   │   │   ├── photo_id             # String
-    │   │   │   ├── liked_time           # Timestamp
-    │   │   │   └── photo_url            # String
-    │   │   disliked_photos              # Subcollection
-    │   │   │   ├── photo_id             # String
-    │   │   │   └── photo_url            # String
-    │   │   random_photos                # Array [30]
-    │   │   currentRandomImageIndex      # Number
+    ├── Users                                       # Collection
+        ...
+        ├── User                                    # Document
+            ├── user_id                             # String
+            ├── liked_photos                        # Subcollection
+            |        ...
+            |        ├── photo                      # Document
+            |            ├── photo_id               # String
+            |            ├── liked_time             # Timestamp
+            |            └── photo_url              # String
+            ├── disliked_photos                     # Subcollection
+            |        ...
+            |        ├── photo                      # Document
+            |            ├── photo_id               # String
+            |            └── photo_url              # String
+            ├── random_photos                       # Array [30]
+            ├── currentRandomImageIndex             # Number
+        ...
 
 > Random photos is an Array of object with same schema as liked photos/ disliked photos. Random photos are stored 30 at a time in the firestore database. when currentRandomImageIndex is equal to 30, the next 30 photos are fetched from the unsplash API and stored in the db (to optimise API calls).
 
@@ -69,7 +76,7 @@
 
 - [https://syedad218.github.io/photo-reviewing-app/](https://syedad218.github.io/photo-reviewing-app/)
 
-## Notes :code:
+## Notes :notes:
 
 - function used for filtering random photos fetched from external Unsplash API to avoid displaying previously disliked photos.
 
