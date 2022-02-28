@@ -2,13 +2,15 @@
 
 - Install Node >= 12.x
 - Install dependencies using `npm install`
-- Create a .env.local file and add variables for your local environment like this:
+- Create a `.env.local` file and add variables for your local environment like this:
 
-  - `REACT_APP_ACCESS_KEY=<your-unsplash-api-key>`
-  - `REACT_APP_FIREBASE_API_KEY=<your--firebase-secret>`
-  - `REACT_APP_FIREBASE_APP_ID=<your-firebase-app-id>`
-  - `REACT_APP_FIREBASE_MEASUREMENT_ID=<your-firebase-measurement-id>`
-  - `REACT_APP_FIREBASE_MESSAGING_SENDER_ID=<your-firebase-sender-id>`
+```
+  REACT_APP_ACCESS_KEY=<your-unsplash-api-key>
+  REACT_APP_FIREBASE_API_KEY=<your--firebase-secret>
+  REACT_APP_FIREBASE_APP_ID=<your-firebase-app-id>
+  REACT_APP_FIREBASE_MEASUREMENT_ID=<your-firebase-measurement-id>
+  REACT_APP_FIREBASE_MESSAGING_SENDER_ID=<your-firebase-sender-id>
+```
 
 - Run `npm start` to start the application
 - Visit http://localhost:3000 to see the application in action
