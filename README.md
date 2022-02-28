@@ -42,6 +42,9 @@
 
 > App uses anonymous authentication for authentication/creation of user. [Anonymous Authentication using Firebase](https://firebase.google.com/docs/auth/web/anonymous-auth)
 
+> Demo usage of app :fire:
+> ![Demo](./docs/demo-photo-review-app.gif)
+
 ## Database Structure
 
 > Collection and Document structure for the app in firestore.
