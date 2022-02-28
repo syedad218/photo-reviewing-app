@@ -4,6 +4,8 @@
 
 > ![Demo](./docs/demo-photo-review-app.gif)
 
+## Installation
+
 - Install Node >= 12.x
 - Install dependencies using `npm install`
 - Create a `.env.local` file and add variables for your local environment like this:
