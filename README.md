@@ -1,5 +1,9 @@
 # Photo Reviewing App &nbsp; <img src="./docs/react.png" width="26" height="24">&nbsp; <img src="./docs/firebase.png" width="26" height="24"> &nbsp;<img src="./docs/redux.png" width="26" height="24"> &nbsp;<img src="./docs/typescript.png" width="26" height="24"> &nbsp;<img src="./docs/unsplash.png" width="26" height="24">
 
+> Demo usage of app :fire:
+
+> ![Demo](./docs/demo-photo-review-app.gif)
+
 - Install Node >= 12.x
 - Install dependencies using `npm install`
 - Create a `.env.local` file and add variables for your local environment like this:
@@ -41,10 +45,6 @@
 - If the user liked an already liked photo, the photo is moved to the top of the liked photos slider section with updated liked time.
 
 > App uses anonymous authentication for authentication/creation of user. [Anonymous Authentication using Firebase](https://firebase.google.com/docs/auth/web/anonymous-auth)
-
-> Demo usage of app :fire:
-
-> ![Demo](./docs/demo-photo-review-app.gif)
 
 ## Database Structure
 
